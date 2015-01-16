@@ -1,0 +1,2 @@
+map(h, z).select(lambda f: f == 2).map(to_string).display
+

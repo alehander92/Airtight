@@ -101,7 +101,7 @@ class ASTRewriter:
         '''
         rewrite compile-time decorators to annotations
 
-        typeclass a_typeclass, a list with the typeclass variables
+        is_native
         '''
         node.a_typeclass = []
         if node.decorator_list:

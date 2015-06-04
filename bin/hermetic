@@ -1,16 +1,31 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import sys
+import os, sys
+print(os.path.abspath('/usr/local/google/home/alivanov/hermetic/'))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+# print(sys.path)
+import ast
+from hermetic import hindley_milner_ast
+from hermetic import converter
+from hermetic import top_env
 
 def main(filename):
-	return
-
+    with open(filename, 'r') as f:
+        code = f.read()
+    python_ast = ast.parse(code)
+    hm_ast = converter.PythonConverter().convert(python_ast)
+    print(str(hm_ast))
+    try:
+        print(hindley_milner_ast.analyse(hm_ast, top_env.TOP_ENV))
+        print(str(hm_ast))
+    except (hindley_milner_ast.ParseError, hindley_milner_ast.TypeError) as a:
+        print(a)
 
 if __name__ == '__main__':
-	if len(sys.argv) == 1:
-		print('compile')
-	else:
-		main(sys.argv[1])
+    if len(sys.argv) == 1:
+        print('compile filename')
+    else:
+        main(sys.argv[1])
 
 
 

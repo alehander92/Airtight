@@ -82,7 +82,7 @@ class Ident(Top):
     def __str__(self):
         return '{name}@{type}'.format(name=str(self.name), type=str(self.h_type))
 
-class anInteger(Top):
+class anInteger(Ident):
     pass
 
 class aString(Ident):
@@ -350,10 +350,16 @@ def analyse(node, env, non_generic=None):
         new_non_generic = non_generic.copy()
         new_non_generic.add(arg_type)
         if node.expected:
+            expected_type = find_type(node.expected, env)
+            print('UNIFY ARG', expected_type, arg_type)
             unify(node.expected, arg_type)
+            print('UN', expected_type, arg_type)
         result_type = analyse(node.body, new_env, new_non_generic)
         if node.return_expected:
+            expected_type = find_type(node.return_expected, env)
+            print('UNIFY RET', expected_type, arg_type)
             unify(node.return_expected, result_type)
+            print('UN', expected_type, arg_type)
         return node.annotate(Function(arg_type, result_type))
     elif isinstance(node, LambdaNoArgs):
         return node.annotate(analyse(node.body, env, non_generic))
@@ -385,6 +391,14 @@ def analyse(node, env, non_generic=None):
         return node.annotate(analyse(node.body, new_env, non_generic))
     assert 0, "Unhandled syntax node {0}".format(type(t))
 
+def find_type(expected, env):
+    if isinstance(expected, Function):
+        print(expected)
+        for i in range(len(expected.types)):
+            expected.types[i] = find_type(expected.types[i], env)
+        return expected
+    elif isinstance(expected, TypeOperator) and not expected.types:
+        return env.get(expected.name, expected)
 
 def getType(name, env, non_generic):
     """Get the type of identifier name from the type environment env.

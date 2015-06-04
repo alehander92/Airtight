@@ -95,12 +95,16 @@ class PythonConverter:
                 [Ident('arg')]),
             context)
         '''
+        expected = []
+        for arg in args.args:
+            expected.append(self.convert_annotation(arg.annotation))
+        expected.append(self.convert_annotation(returns))
         result = hm_ast.Let(
                 name,
                 hm_ast.Multi_Lambda(
                     [arg.arg for arg in args.args],
                     self.convert_body(body, None),
-                    expected=[self.convert_annotation(arg.annotation) for arg in args.args]),
+                    expected=expected),
                 context)
         if decorator_list:
             if isinstance(decorator_list[0], ast.Name) and decorator_list[0].id == 'native':
@@ -111,11 +115,13 @@ class PythonConverter:
         if isinstance(annotation, ast.Name):
             return hm_ast.TypeOperator(annotation.id, [])
         elif isinstance(annotation, ast.BinOp):
-            if isinstance(annotation, ast.Name):
+            if isinstance(annotation.left, ast.Name):
                 left = [annotation.left, annotation.right]
             else:
-                left = annotation.elts + [annotation.right]
-            return hm_ast.Multi_Function([hm_ast.TypeOperator(l.id) for l in left])
+                left = annotation.left.elts + [annotation.right]
+            return hm_ast.Multi_Function([hm_ast.TypeOperator(l.id, []) for l in left])
+        else:
+            return None
 
     def convert_body(self, body, context):
         print(body)

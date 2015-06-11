@@ -114,14 +114,26 @@ class PythonConverter:
     def convert_annotation(self, annotation):
         if isinstance(annotation, ast.Name):
             return hm_ast.TypeOperator(annotation.id, [])
-        elif isinstance(annotation, ast.BinOp):
+        elif isinstance(annotation, ast.BinOp) and isinstance(annotation.op, ast.RShift):
             if isinstance(annotation.left, ast.Name):
+                # A >> B
                 left = [annotation.left, annotation.right]
             else:
+                # (A, Z) >> B
                 left = annotation.left.elts + [annotation.right]
             return hm_ast.Multi_Function([hm_ast.TypeOperator(l.id, []) for l in left])
+        elif isinstance(annotation, ast.BinOp) and isinstance(annotation.op, ast.BinOr):
+            # A | B
+            left, right = [self.convert_annotation(a) for a in [annotation.left, annotation.right]]
+            return hm_ast.Union(left, right)
+        elif isinstance(annotation, ast.List):
+            # [A]
+            return hm_ast.List(self.convert_annotation(annotation.elts[0]))
         else:
             return None
+
+    def convert_expr(self, value, context):
+        return self.convert_node(value, context)
 
     def convert_body(self, body, context):
         print(body)
@@ -134,6 +146,7 @@ class PythonConverter:
                 return converted
         else:
             current = len(body) - 1
+            context = context or hm_ast.anInteger(2)
             while current >= 0:
                 next_node = self.convert_node(body[current], context)
                 if isinstance(next_node, (hm_ast.Let, hm_ast.Letrec)):
@@ -167,6 +180,12 @@ class PythonConverter:
         Ident("alexander")
         '''
         return hm_ast.Ident(id)
+
+    def convert_nameconstant(self, value, context):
+        if value in [True, False]:
+            return hm_ast.aBoolean(value)
+        else:
+            return hm_ast.Ident(str(value))
 
     def convert_list(self, elts, ctx, context):
         '''

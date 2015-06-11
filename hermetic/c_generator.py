@@ -70,10 +70,13 @@ class CGenerator(Generator):
             self.write_node(e, depth + 1)
             self.semi()
             self.nl()
-        self.offset(depth + 1)
-        self.s('return')
-        self.ws()
-        self.write_node(body[-1], depth + 1)
+        if body[-1].type != 'if':
+            self.offset(depth + 1)
+            self.s('return')
+            self.ws()
+            self.write_node(body[-1])
+        else:
+            self.write_if(body[-1], depth + 1, with_return=True)
         self.semi()
         self.nl()
         self.offset(depth)
@@ -92,6 +95,55 @@ class CGenerator(Generator):
         self.ref()
         self.ws()
         self.write_node(args[-1])
+
+    def write_if(self, node, depth=0, with_return=False):
+        self.offset(depth)
+        self.s('if')
+        self.lparen()
+        self.write_node(node.test)
+        self.rparen()
+        self.lcurly()
+        self.nl()
+        body = node.body if isinstance(node.body, list) else [node.body]
+        for e in body[:-1]:
+            self.write_node(e, depth + 1)
+            self.semi()
+            self.nl()
+        if with_return:
+            self.offset(depth + 1)
+            self.s('return')
+            self.ws()
+            self.write_node(body[-1])
+        else:
+            self.write_node(body[-1], depth + 1)
+        self.semi()
+        self.nl()
+
+        self.offset(depth)
+        self.rcurly()
+        self.nl()
+        self.offset(depth)
+        self.s('else')
+        self.lcurly()
+        self.nl()
+        orelse = node.orelse if isinstance(node.orelse, list) else [node.orelse]
+        for e in orelse[:-1]:
+            self.write_node(e, depth + 1)
+            self.semi()
+            self.nl()
+        if with_return:
+            self.offset(depth + 1)
+            self.s('return')
+            self.ws()
+            self.write_node(orelse[-1])
+        else:
+            self.write_node(orelse[-1], depth + 1)
+        self.semi()
+        self.nl()
+
+        self.offset(depth)
+        self.rcurly()
+        self.nl()
 
     def write_ident(self, node, depth=0):
         self.offset(depth)

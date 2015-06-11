@@ -23,8 +23,14 @@ TOP_ENV = {
     # filter : (g -> Bool) -> [g] -> [g]
     'print': Union(
         Function(Integer, String),
-        Function(String, String))
+        Function(String, String)),
     # print : (Integer | String) -> String
+    'h__gt__': Union(
+        Multi_Function([Integer, Integer, Bool]),
+        # > : Integer -> Integer -> Bool
+        Multi_Function([Float, Float, Bool])
+        # > : Float -> Float -> Bool
+    )
 }
 
 

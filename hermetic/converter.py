@@ -173,6 +173,17 @@ class PythonConverter:
             hm_ast.Ident('h' + self.OPERATOR_MAGIC_FUNCTIONS[type(op)]),
             [self.convert_node(left, context), self.convert_node(right, context)])
 
+    def convert_compare(self, ops, left, comparators, context):
+        return hm_ast.Multi_Apply(
+            hm_ast.Ident('h' + self.OPERATOR_MAGIC_FUNCTIONS[type(ops[0])]),
+            [self.convert_node(left, context), self.convert_node(comparators[0], context)])
+
+    def convert_if(self, test, body, orelse, context):
+        return hm_ast.If(
+            self.convert_node(test, context),
+            self.convert_body(body, context),
+            self.convert_body(orelse, context))
+
     def convert_name(self, id, ctx, context):
         '''
         alexander

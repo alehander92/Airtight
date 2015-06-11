@@ -78,6 +78,9 @@ class LLAstGenerator:
     def generate_alist(self, node):
         return LLAst(type='list', items=[self.generate_node(e) for e in node.items], h_type=node.h_type)
 
+    def generate_if(self, node):
+        return LLAst(type='if', test=self.generate_node(node.test), body=self.generate_node(node.body), orelse=self.generate_node(node.orelse), h_type=node.h_type)
+
 class LLAst:
     def __init__(self, **kwargs):
         for label, arg in kwargs.items():

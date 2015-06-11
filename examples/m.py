@@ -1,5 +1,8 @@
-def find_shortest_path(paths: [String], from_):
-	return paths
+def f(a: [Integer], b: Integer, d: Integer) -> [Integer]:
+    if b > 2:
+        return a
+    else:
+        return a
 
-find_shortest_path(['H', 'L'], 'H')
 
+f([2], 2, 2)

@@ -61,6 +61,15 @@ class aList(Top):
         return "[{items}]".format(
                 items=', '.join(str(item) for item in self.items))
 
+class If(Top):
+    def __init__(self, test, body, orelse):
+        self.test = test
+        self.body = body
+        self.orelse = orelse
+
+    def __str__(self):
+        return 'If({0}) {1} {2}'.format(str(self.test), str(self.body), str(self.orelse))
+
 class Body(Top):
     """A list of expressions"""
 
@@ -337,6 +346,13 @@ def analyse(node, env, non_generic=None):
 
     if isinstance(node, Ident):
         return node.annotate(getType(node.name, env, non_generic))
+    elif isinstance(node, If):
+        unify(analyse(node.test, env, non_generic), Bool)
+        node.test.annotate(Bool)
+        body_type = analyse(node.body, env, non_generic)
+        orelse_type = analyse(node.body, env, non_generic)
+        unify(body_type, orelse_type)
+        return node.annotate(body_type)
     elif isinstance(node, Apply):
         fun_type = analyse(node.fn, env, non_generic)
         arg_type = analyse(node.arg, env, non_generic)
@@ -466,8 +482,9 @@ def getType(name, env, non_generic):
             return [fresh(t, non_generic) for t in type_]
         else:
             return fresh(type_, non_generic)
-    elif isinstance(name, Ident):
-        name = name.name
+    else:
+        if isinstance(name, Ident):
+            name = name.name
         types_of_name = {
             int: Integer,
             float: Float,

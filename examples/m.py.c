@@ -1,5 +1,11 @@
-WTF* h_find_shortest_path(HList_HString* h_paths){
-    return     h_paths;
+WTF* h_f(HList_HInteger* h_d){
+    if(h_h__gt__(h_b, 2)){
+        return h_a;
+    }
+    else{
+        return h_a;
+    }
+;
 }
-h_find_shortest_path(HListOf2("'H'", "'L'"));
+h_f(HListOf1(2), 2, 2);
 2;

@@ -376,6 +376,12 @@ def analyse(node, env, non_generic=None):
         found = False
         # print(backup, fun_type);input()
         unify(backup, fun_type)
+        if isinstance(node.arg, Ident):
+            if node.arg.name not in env:
+                env[node.arg.name] = arg_type
+            else:
+                unify(env[node.arg.name], arg_type)
+        node.arg.annotate(arg_type)
         node.fn.annotate(backup)
 
         # for f in fun_types:

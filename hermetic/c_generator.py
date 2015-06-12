@@ -163,10 +163,10 @@ class CGenerator(Generator):
         self.offset(depth)
         q_label = copy.copy(method.label)
         q_label.h_type = method.body.h_return_type
-        # print(method.body.h_return_type);input()
+        print(method.body.h_return_type, method.body.h_return_type);input()
         # print(q_label, method.body.h_return_type, method.h_vars[1]);input()# print(method.h_type.types[1]);input()
         if method.h_vars:
-            self.write_with_type(q_label, special=True, arg_types=[arg.h_type for arg in method.body.args], return_type=method.h_type)
+            self.write_with_type(q_label, special=True, arg_types=[arg.h_type for arg in method.body.args], return_type=q_label.h_type)
         else:
             self.write_with_type(q_label)
         self.lparen()
@@ -311,13 +311,14 @@ class CGenerator(Generator):
         for arg_type in arg_types:
             self.write_type(arg_type)
             self.s('_')
+
         self.write_type(return_type)
 
     def write_list(self, node, depth=0):
         if not node.items:
-            self.s('HListOf0()')
+            self.s('{0}Of0()'.format(self.to_ctype(node.h_type)))
             return
-        self.s('HListOf{0}('.format(len(node.items)))
+        self.s('{0}Of{1}('.format(self.to_ctype(node.h_type), len(node.items)))
         for i in node.items[:-1]:
             self.write_node(i)
             self.comma()
@@ -327,6 +328,8 @@ class CGenerator(Generator):
 
     def write_args(self, args, depth=0):
         for arg in args[:-1]:
+            if arg.type == 'ident' and arg.label in self.functions:
+                self.s('&')
             self.write_node(arg)
             self.comma()
             self.ws()
@@ -370,10 +373,12 @@ class CGenerator(Generator):
             self.rparen()
 
             self.current_function_idents.add(node.label)
-        elif isinstance(node.h_type, hm_ast.List):
+        elif isinstance(node.h_type, hm_ast.List) or node.h_type.name == 'list':
+            print('before write_with_type:', ''.join(self.out))
             self.s('HList_')
             self.write_type(node.h_type.types[0])
             self.ws()
+            print('after write_with_type:', ''.join(self.out))
             if special:
                 self.write_special_ident(node, arg_types, return_type)
             else:
@@ -390,6 +395,7 @@ class CGenerator(Generator):
     def write_assignment(self, node, depth=0):
         self.offset(depth)
         if node.label.label not in self.scopes[-1]:
+            print('AS', node.label.h_type.types[0], self.registry)
             self.write_type(node.label.h_type)
             self.ws()
             self.scopes[-1][node.label.label] = node.label.h_type
@@ -406,6 +412,9 @@ class CGenerator(Generator):
                 # hm_ast.Bool: 'bool'}
         # if h_type.name != str(h_type):
         #     print(h_type, h_type.name);print(h_type.instance, h_type.instance.name);input()
+        if h_type.name == 'list':
+            print(h_type)
+            input('?')
         if hasattr(h_type, 'instance') and h_type.instance:
             h_type = h_type.instance
         if hasattr(h_type, 'types'):
@@ -425,7 +434,7 @@ class CGenerator(Generator):
         return self.to_ctype(h_type.types[1])
 
     def to_ctype_typeoperator(self, h_type):
-        if h_type.name == 'List':
+        if h_type.name == 'list':
             return 'HList_{0}'.format(self.to_ctype(h_type.types[0]))
         elif h_type.name == 'Function':
             return 'HFunction'
@@ -444,7 +453,6 @@ class CGenerator(Generator):
             return h_type.name
 
     def to_ctype_list(self, h_type):
-        print(h_type)
         return 'HList_{0}'.format(self.to_ctype(h_type.types[0]))
 
     def to_ctype_nonetype(self, h_type):

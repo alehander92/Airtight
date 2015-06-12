@@ -1,8 +1,7 @@
-def f(a: [Integer], b: Integer, d: Integer) -> [Integer]:
-    if b > 2:
-        return a
-    else:
-        return a
+def filter(f: y >> z, s: y) -> z:
+    return f(s)
 
+def even(a: Integer) -> Integer:
+    return a + 2
 
-f([2], 2, 2)
+filter(even, 2)

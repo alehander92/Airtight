@@ -1,12 +1,18 @@
-HList_float h_a_floatWTFint_HList_int_HList_float(float (*h_f)(int), HList_a h_other){
-    return HList_floatOf1(h_f(h__index___HList_int_int_int(h_other, 0)));
+int h_even(int h_a){
+    return 2;
 }
 
-float h_even(int h_a){
-    return 2.2;
+WTF h_f0_int_HList_int_WTF(int (*h_f)(int), HList_int h_s){
+    HList_e h_out = HListOf0();
+    for(int i=0;i<length(h_s);i++){
+        int h_i = h_s[i];
+        h_append(h_out, (*h_f)(h_i));
+    }
+;
+    return h_out;
 }
 
 int main(){
-    h_a_floatWTFint_HList_int_HList_float(&h_even, HList_intOf1(2));
+    h_f0_WTF_HList_int_WTF(h_even, HListOf1(2));
     return 0;
 }

@@ -1,8 +1,13 @@
 @template(y, z)
-def a(f: y >> z, other: [y]) -> [z]:
-    return [f(other[0])]
+def f0(f: y >> z, s: [y]) -> [z]:
+    out = []
+    for i in s:
+        append(out, f(i))
+    return out
 
-def even(a: Integer) -> Float:
-	return 2.2
 
-a(even, [2])
+def even(a: Integer) -> Integer:
+    return 2
+
+f0(even, [2])
+

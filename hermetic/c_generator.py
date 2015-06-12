@@ -2,6 +2,10 @@ import copy
 from hermetic.ll_ast import *
 import hermetic.hindley_milner_ast as hm_ast
 
+def e(obj, attr):
+    print('%s: %s' % (attr, str(getattr(obj, attr))))
+    input()
+
 class Generator:
     def __init__(self, ast):
         self.ast = ast
@@ -88,13 +92,20 @@ class FunctionGenerator:
         for a, actual in zip(met.body.args, actual_arg_types):
             self.load_arg([h.instance.name if h.instance else h.name for h in met.h_vars], a.h_type, actual)
         self.load_arg([h.instance.name if h.instance else h.name for h in met.h_vars], met.body.h_type, actual_return_type)
-
+        print([h.instance.name if h.instance else h.name for h in met.h_vars])
+        print(actual_arg_types[0])
+        e(self.c_generator, 'registry')
 
     def load_arg(self, h_vars, met_type, actual_type):
-        # print(2, met_type, actual_type, met_type.name, h_vars[1], met_type.name in h_vars);input()
+        if h_vars:
+            print(hasattr(met_type, 'types'), type(met_type))
+            # print(2, 'm type:', met_type, 'a type', actual_type, 'm name', met_type.name, 'h0', h_vars[0], 'h1', h_vars[1]);input()
+
         if isinstance(met_type, TypeVariable) and met_type.name in h_vars:
             self.c_generator.registry[met_type.name] = actual_type
-        elif hasattr(met_type, 'types') and hasattr(actual_type, 'types'):
+        elif hasattr(met_type, 'instance') and met_type.instance:
+            self.load_arg(h_vars, met_type.instance, actual_type)
+        if hasattr(met_type, 'types') and hasattr(actual_type, 'types'):
             for t, z_child in zip(met_type.types, actual_type.types):
                 self.load_arg(h_vars, t, z_child)
 
@@ -152,6 +163,7 @@ class CGenerator(Generator):
         self.offset(depth)
         q_label = copy.copy(method.label)
         q_label.h_type = method.body.h_return_type
+        # print(method.body.h_return_type);input()
         # print(q_label, method.body.h_return_type, method.h_vars[1]);input()# print(method.h_type.types[1]);input()
         if method.h_vars:
             self.write_with_type(q_label, special=True, arg_types=[arg.h_type for arg in method.body.args], return_type=method.h_type)
@@ -337,6 +349,9 @@ class CGenerator(Generator):
 
     def write_with_type(self, node, special=False, arg_types=None, return_type=None, depth=0):
         self.offset(depth)
+        if hasattr(node.h_type, 'instance') and node.h_type.instance:
+            node.h_type = node.h_type.instance
+
         if isinstance(node.h_type, hm_ast.Function):
             self.write_type(node.h_type.types[-1])
             self.ws()
@@ -355,6 +370,14 @@ class CGenerator(Generator):
             self.rparen()
 
             self.current_function_idents.add(node.label)
+        elif isinstance(node.h_type, hm_ast.List):
+            self.s('HList_')
+            self.write_type(node.h_type.types[0])
+            self.ws()
+            if special:
+                self.write_special_ident(node, arg_types, return_type)
+            else:
+                self.write_node(node)
         else:
             self.write_type(node.h_type)
             self.ws()
@@ -383,6 +406,13 @@ class CGenerator(Generator):
                 # hm_ast.Bool: 'bool'}
         # if h_type.name != str(h_type):
         #     print(h_type, h_type.name);print(h_type.instance, h_type.instance.name);input()
+        if hasattr(h_type, 'instance') and h_type.instance:
+            h_type = h_type.instance
+        if hasattr(h_type, 'types'):
+            for i in range(len(h_type.types)):
+                if hasattr(h_type.types[i], 'instance') and h_type.types[i].instance:
+                    h_type.types[i] = h_type.types[i].instance
+
         if hasattr(h_type, 'name') and h_type.name in native_types:
             return native_types[h_type.name]
         elif hasattr(h_type, 'instance') and h_type.instance and h_type.instance.name in native_types:

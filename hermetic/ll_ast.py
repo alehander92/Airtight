@@ -34,7 +34,10 @@ class LLAstGenerator:
                 type    = 'method',
                 label   = LLAst(type='ident', label=node.v, h_type=node.defn.h_type),
                 body    = self.generate_lambda(node.defn),
-                h_type  = node.defn.h_type)
+                h_type  = node.defn.h_type,
+                h_native = node.h_native,
+                h_vars  = node.h_vars,
+                h_return_type = node.defn.h_return_type)
         else:
             let_ast = LLAst(
                 type    = 'assignment',
@@ -42,7 +45,7 @@ class LLAstGenerator:
                 right   = self.generate_node(node.defn),
                 h_type  = node.h_type)
         body_ast = self.generate_node(node.body)
-        return [let_ast] + body_ast if isinstance(body_ast, list) else [body_ast]
+        return [let_ast] + body_ast if isinstance(body_ast, list) else [let_ast, body_ast]
 
     def generate_lambda(self, node):
         if isinstance(node.body, Lambda):
@@ -52,8 +55,8 @@ class LLAstGenerator:
                 type    = 'lambda',
                 args    = [],
                 body    = self.generate_node(node.body),
-                h_type  = node.h_type)
-
+                h_type  = node.h_type,
+                h_return_type = node.h_return_type)
         lambda_ast.args = [LLAst(type='ident', label=node.v, h_type=node.h_type.types[0])] + lambda_ast.args
         return lambda_ast
 
@@ -72,7 +75,7 @@ class LLAstGenerator:
             apply_ast = self.generate_apply(node.fn)
             apply_ast.args.append(self.generate_node(node.arg))
         else:
-            apply_ast = LLAst(type='apply', function=self.generate_node(node.fn), args=[self.generate_node(node.arg)], h_type=node.h_type)
+            apply_ast = LLAst(type='apply', function=self.generate_node(node.fn), args=[self.generate_node(node.arg)], h_type=node.h_type, _special=False)
         return apply_ast
 
     def generate_alist(self, node):
@@ -80,6 +83,9 @@ class LLAstGenerator:
 
     def generate_if(self, node):
         return LLAst(type='if', test=self.generate_node(node.test), body=self.generate_node(node.body), orelse=self.generate_node(node.orelse), h_type=node.h_type)
+
+    def generate_for(self, node):
+        return LLAst(type='for', target=self.generate_node(node.target), iter=self.generate_node(node.iter), body=self.generate_node(node.body), h_type=node.h_type)
 
 class LLAst:
     def __init__(self, **kwargs):

@@ -1,7 +1,7 @@
 import hermetic.hindley_milner_ast as hm_ast
 from hermetic.hindley_milner_ast import *
 
-Z = 4
+Z = 8
 vars_type = [hm_ast.TypeVariable() for i in range(Z)]
 
 TOP_ENV = {
@@ -30,7 +30,13 @@ TOP_ENV = {
         # > : Integer -> Integer -> Bool
         Multi_Function([Float, Float, Bool])
         # > : Float -> Float -> Bool
-    )
+    ),
+    'h__index__': Multi_Function([List(vars_type[4]), Integer, vars_type[4]]),
+    # [] : [h] -> Integer -> h
+    'h__slice__': Multi_Function([List(vars_type[5]), Integer, Integer, vars_type[5]]),
+    # [] : [h] -> Integer -> Integer -> [h]
+    'append': Multi_Function([List(vars_type[6]), vars_type[6], List(vars_type[6])])
+    # append : [h] -> h -> [h]
 }
 
 

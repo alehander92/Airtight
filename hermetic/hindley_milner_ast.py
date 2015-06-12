@@ -70,6 +70,15 @@ class If(Top):
     def __str__(self):
         return 'If({0}) {1} {2}'.format(str(self.test), str(self.body), str(self.orelse))
 
+class For(Top):
+    def __init__(self, iter, target, body):
+        self.iter = iter
+        self.target = target
+        self.body = body
+
+    def __str__(self):
+        return 'For {0} in {1} {2}'.format(str(self.target), str(self.iter), str(self.body))
+
 class Body(Top):
     """A list of expressions"""
 
@@ -365,7 +374,7 @@ def analyse(node, env, non_generic=None):
         #if hasattr(node.fn, 'name') and node.fn.name == 'h__add__':
         # print(node, arg_type, result_type, [str(f) for f in fun_type])
         found = False
-        print(backup, fun_type);input()
+        # print(backup, fun_type);input()
         unify(backup, fun_type)
         node.fn.annotate(backup)
 
@@ -388,6 +397,18 @@ def analyse(node, env, non_generic=None):
         analyse(node.expression, env, non_generic)
         return node.annotate(
                     analyse(node.other, env, non_generic))
+    elif isinstance(node, For):
+        iter_type = analyse(node.iter, env, non_generic)
+        target_type = TypeVariable()
+        unify(List(target_type), iter_type)
+        node.target.annotate(target_type)
+        # print('target type:',node.target.h_type);input()
+        node.iter.annotate(iter_type)
+        new_env = env.copy()
+        new_env[node.target.name] = target_type
+        new_non_generic = non_generic.copy()
+        new_non_generic.add(target_type)
+        return node.annotate(analyse(node.body, new_env, new_non_generic))
     elif isinstance(node, Lambda):
         arg_type = TypeVariable()
         new_env = env.copy()
@@ -396,7 +417,7 @@ def analyse(node, env, non_generic=None):
         new_non_generic.add(arg_type)
         if node.expected:
             expected_type = find_type(node.expected, env)
-            print('UNIFY ARG', expected_type, arg_type)
+            print('UNIFY ARG', node.expected, expected_type, arg_type)
             unify(expected_type, arg_type)
             print('UN', expected_type, arg_type)
         result_type = analyse(node.body, new_env, new_non_generic)
@@ -406,6 +427,7 @@ def analyse(node, env, non_generic=None):
             print('UNIFY RET', expected_type, result_type)
             unify(expected_type, result_type)
             print('UN', expected_type, result_type)
+        node.h_return_type = result_type
         return node.annotate(Function(arg_type, result_type))
     elif isinstance(node, LambdaNoArgs):
         return node.annotate(analyse(node.body, env, non_generic))
@@ -414,7 +436,7 @@ def analyse(node, env, non_generic=None):
             item_type = TypeVariable()
         else:
             item_type = find_type(node.items[0], env)
-            print(item_type, node.items[0], type(node.items[0]));input()
+            # print(item_type, node.items[0], type(node.items[0]));input()
             node.items[0].annotate(item_type)
             for j in node.items[1:]:
                 unify(item_type, find_type(j, env))
@@ -448,7 +470,6 @@ def analyse(node, env, non_generic=None):
 
 def find_type(expected, env):
     if isinstance(expected, Function):
-        print(expected)
         for i in range(len(expected.types)):
             expected.types[i] = find_type(expected.types[i], env)
         return expected
@@ -463,6 +484,8 @@ def find_type(expected, env):
         return getType(expected, env, set())
     elif isinstance(expected, TypeOperator) and not expected.types:
         return env.get(expected.name, expected)
+    elif isinstance(expected, TypeVariable):
+        return expected
 
 def getType(name, env, non_generic):
     """Get the type of identifier name from the type environment env.
@@ -544,6 +567,7 @@ def unify(t1, t2):
 
     a = prune(t1)
     b = prune(t2)
+    print('b:', a, type(a), '\t', b, type(b))
     if isinstance(a, TypeVariable):
         if a != b:
             if occursInType(a, b):
@@ -555,6 +579,7 @@ def unify(t1, t2):
         if (a.name != b.name or len(a.types) != len(b.types)):
             raise TypeError("Type mismatch: {0} != {1}".format(str(a), str(b)))
         for p, q in zip(a.types, b.types):
+            # print('a:', p, q);input()
             unify(p, q)
     elif isinstance(a, TypeOperator) and isinstance(b, Union):
         for z in b.types:

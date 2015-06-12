@@ -23,7 +23,9 @@ class PythonConverter:
         ast.GtE: '__gte',
         ast.And: '__and__',
         ast.Or: '__or__',
-        ast.Not:  '__not__'
+        ast.Not:  '__not__',
+        ast.Index: '__index__',
+        ast.Slice: '__slice__'
     }
 
     def __init__(self):
@@ -96,9 +98,10 @@ class PythonConverter:
             context)
         '''
         expected = []
+        vars = {}
         for arg in args.args:
-            expected.append(self.convert_annotation(arg.annotation))
-        expected.append(self.convert_annotation(returns))
+            expected.append(self.convert_annotation(arg.annotation, vars))
+        expected.append(self.convert_annotation(returns, vars))
         result = hm_ast.Let(
                 name,
                 hm_ast.Multi_Lambda(
@@ -106,13 +109,22 @@ class PythonConverter:
                     self.convert_body(body, None),
                     expected=expected),
                 context)
+        result.h_native = False
+        result.h_vars = []
         if decorator_list:
             if isinstance(decorator_list[0], ast.Name) and decorator_list[0].id == 'native':
                 result.h_native = True
+            if isinstance(decorator_list[-1], ast.Call) and decorator_list[-1].func.id == 'template':
+                # result.h_vars = vars.keys
+                result.h_vars = [vars[arg.id] for arg in decorator_list[-1].args] # vars.keys()
         return result
 
-    def convert_annotation(self, annotation):
-        if isinstance(annotation, ast.Name):
+    def convert_annotation(self, annotation, vars):
+        if isinstance(annotation, ast.Name) and annotation.id.islower():
+            if annotation.id not in vars:
+                vars[annotation.id] = hm_ast.TypeVariable()
+            return vars[annotation.id]
+        elif isinstance(annotation, ast.Name):
             return hm_ast.TypeOperator(annotation.id, [])
         elif isinstance(annotation, ast.BinOp) and isinstance(annotation.op, ast.RShift):
             if isinstance(annotation.left, ast.Name):
@@ -121,14 +133,14 @@ class PythonConverter:
             else:
                 # (A, Z) >> B
                 left = annotation.left.elts + [annotation.right]
-            return hm_ast.Multi_Function([hm_ast.TypeOperator(l.id, []) for l in left])
+            return hm_ast.Multi_Function([self.convert_annotation(l, vars) for l in left])
         elif isinstance(annotation, ast.BinOp) and isinstance(annotation.op, ast.BinOr):
             # A | B
-            left, right = [self.convert_annotation(a) for a in [annotation.left, annotation.right]]
+            left, right = [self.convert_annotation(a, vars) for a in [annotation.left, annotation.right]]
             return hm_ast.Union(left, right)
         elif isinstance(annotation, ast.List):
             # [A]
-            return hm_ast.List(self.convert_annotation(annotation.elts[0]))
+            return hm_ast.List(self.convert_annotation(annotation.elts[0], vars))
         else:
             return None
 
@@ -146,7 +158,7 @@ class PythonConverter:
                 return converted
         else:
             current = len(body) - 1
-            context = context or hm_ast.anInteger(2)
+            # context = context or hm_ast.anInteger(2)
             while current >= 0:
                 next_node = self.convert_node(body[current], context)
                 if isinstance(next_node, (hm_ast.Let, hm_ast.Letrec)):
@@ -183,6 +195,28 @@ class PythonConverter:
             self.convert_node(test, context),
             self.convert_body(body, context),
             self.convert_body(orelse, context))
+
+    def convert_for(self, target, body, iter, orelse, context):
+        return hm_ast.For(
+            self.convert_node(iter, context),
+            self.convert_node(target, context),
+            self.convert_body(body, context))
+
+    def convert_subscript(self, value, slice, ctx, context):
+        if isinstance(slice, ast.Index):
+            return hm_ast.Multi_Apply(
+                hm_ast.Ident('h' + self.OPERATOR_MAGIC_FUNCTIONS[type(slice)]), [
+                self.convert_node(value, context),
+                self.convert_node(slice.value)])
+        else:
+            return hm_ast.Multi_Apply(
+                hm_ast.Ident('h' + self.OPERATOR_MAGIC_FUNCTIONS[type(slice)]), [
+                self.convert_node(value, context),
+                self.convert_node(slice.lower) if slice.lower else hm_ast.anInteger(0),
+                self.convert_node(slice.upper) if slice.upper else hm_ast.Multi_Apply(
+                    self.OPERATOR_MAGIC_FUNCTIONS[ast.Sub], [
+                    hm_ast.Apply(hm_ast.Ident('len'), self.convert_node(value, context)),
+                    hm_ast.anInteger(1)])])
 
     def convert_name(self, id, ctx, context):
         '''

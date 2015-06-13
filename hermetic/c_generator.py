@@ -1,4 +1,5 @@
 import copy
+import os
 from hermetic.ll_ast import *
 import hermetic.hindley_milner_ast as hm_ast
 
@@ -13,6 +14,8 @@ class Generator:
         self.scopes = [{}]
         self.current_actuals = {}
         self.current_function_idents = set()
+        self.c = set()
+        self.libs = ['stdlib', 'stdbool', 'stddef', 'string', 'stdarg']
         self.functions = {}
 
     def generate(self):
@@ -45,7 +48,29 @@ class Generator:
         self.rcurly()
         self.nl()
 
-        return ''.join(self.out)
+        l = self.render_c() 
+        s = ''.join(self.out)
+        return l + '\n' + s
+
+    def render_c(self):
+        return self.render_includes() + '\n\n' + self.render_string() + '\n\n' + self.render_l()
+
+    def render_string(self):
+        return self.gen_c('string.c')
+
+    def render_l(self):
+        input(str(self.c))
+        return '\n'.join(self.gen_c('list.c', list_type='HList_' + elem_type, elem_type=elem_type) for elem_type in self.c)
+
+    def render_includes(self):
+        return '\n'.join('#include<' + lib_name + '.h>' for lib_name in self.libs)
+
+    def gen_c(self, file, **kwargs):
+        with open(os.path.join('core', file), 'r') as f:
+            t = f.read()
+        for k, v in kwargs.items():
+            t = t.replace('%{' + k + '}', v)
+        return t  
 
     def offset(self, depth):
         self.out.append(self.OFFSET * depth)
@@ -162,13 +187,18 @@ class CGenerator(Generator):
     def write_method(self, method, depth=0):
         self.offset(depth)
         q_label = copy.copy(method.label)
-        q_label.h_type = method.body.h_return_type
-        print(method.body.h_return_type, method.body.h_return_type);input()
+        self.write_type(method.body.h_return_type)
+        self.ws()
+        q_label.h_type = Multi_Function([arg.h_type for arg in method.body.args] + [method.body.h_return_type])
+
+        print(method.body.args[0].h_type, self.to_ctype(method.body.args[0].h_type));input('?')
+        self.write_special_ident(q_label, [arg.h_type for arg in method.body.args], method.body.h_return_type)
+        # print(method.body.h_return_type, method.body.h_return_type);input()
         # print(q_label, method.body.h_return_type, method.h_vars[1]);input()# print(method.h_type.types[1]);input()
-        if method.h_vars:
-            self.write_with_type(q_label, special=True, arg_types=[arg.h_type for arg in method.body.args], return_type=q_label.h_type)
-        else:
-            self.write_with_type(q_label)
+        # if True: #method.h_vars:
+        #     self.write_with_type(q_label, special=True, arg_types=[arg.h_type for arg in method.body.args], return_type=q_label.h_type)
+        # else:
+        #     self.write_with_type(q_label)
         self.lparen()
         self.write_m_args(method.body.args, method.h_type)
         self.rparen()
@@ -254,7 +284,7 @@ class CGenerator(Generator):
         self.lparen()
         self.s('int')
         self.ws()
-        self.s('i=0;i<length(')
+        self.s('i=0;i<h_length_{0}_int('.format(self.to_ctype(node.iter.h_type)))
         self.write_node(node.iter)
         self.rparen()
         self.semi()
@@ -263,8 +293,9 @@ class CGenerator(Generator):
         self.offset(depth + 1)
         self.write_with_type(node.target)
         self.s(' = ')
+        self.s('h_index_{0}_int_{1}('.format(self.to_ctype(node.iter.h_type), self.to_ctype(node.target.h_type)))
         self.write_node(node.iter)
-        self.s('[i];')
+        self.s(', i);')
         self.nl()
         body = node.body if isinstance(node.body, list) else [node.body]
         for e in body:
@@ -296,9 +327,25 @@ class CGenerator(Generator):
         # if node.function.type == 'ident':
         #     f = self.functions[node.name]
         #     if f.h_
-        if node._special and node.function.type == 'ident':
-            self.write_special_ident(node.function, [arg.h_type for arg in node.args], node.h_type)
+
+        if node.function.type == 'ident' and node.function.label not in self.current_function_idents: # node._special and node.function.type == 'ident':
+            print([print(arg, arg.h_type) for arg in node.args])
+            print(node.h_type)
+            arg_types = []
+            for arg in node.args + [node]:
+                if hasattr(arg.h_type, 'instance') and arg.h_type.instance:
+                    arg.h_type = arg.h_type.instance
+
+                if arg.type == 'apply' and hasattr(arg.h_type, 'types') and len(arg.h_type.types) > 0:
+                    arg_types.append(arg.h_type.types[-1])
+                else:
+                    arg_types.append(arg.h_type)
+            for a in arg_types: print(a)
+
+            input(' ')
+            self.write_special_ident(node.function, arg_types[:-1], arg_types[-1])
         else:
+            input('fun: ' + str(node))
             self.write_node(node.function)
         self.lparen()
         self.write_args(node.args)
@@ -309,6 +356,9 @@ class CGenerator(Generator):
         self.s('h_' + node.label)
         self.s('_')
         for arg_type in arg_types:
+            if node.label == 'append':
+                input('#')
+                input(node.label + str(arg_type) + str(type(arg_type)))
             self.write_type(arg_type)
             self.s('_')
 
@@ -316,9 +366,9 @@ class CGenerator(Generator):
 
     def write_list(self, node, depth=0):
         if not node.items:
-            self.s('{0}Of0()'.format(self.to_ctype(node.h_type)))
+            self.s('{0}Of(0)'.format(self.to_ctype(node.h_type)))
             return
-        self.s('{0}Of{1}('.format(self.to_ctype(node.h_type), len(node.items)))
+        self.s('{0}Of({1}, '.format(self.to_ctype(node.h_type), len(node.items)))
         for i in node.items[:-1]:
             self.write_node(i)
             self.comma()
@@ -330,7 +380,10 @@ class CGenerator(Generator):
         for arg in args[:-1]:
             if arg.type == 'ident' and arg.label in self.functions:
                 self.s('&')
-            self.write_node(arg)
+                print([arg.h_type.types[:-1]], arg.h_type.types[-1])
+                self.write_special_ident(arg, arg.h_type.types[:-1], arg.h_type.types[-1])
+            else:
+                self.write_node(arg)
             self.comma()
             self.ws()
         self.write_node(args[-1])
@@ -343,7 +396,7 @@ class CGenerator(Generator):
 
     def write_string(self, node, depth=0):
         self.offset(depth)
-        self.s('"%s"' % node.label)
+        self.s('HStringFrom("%s")' % node.label)
 
     def write_type(self, h_type, depth=0):
         self.offset(depth)
@@ -375,8 +428,10 @@ class CGenerator(Generator):
             self.current_function_idents.add(node.label)
         elif isinstance(node.h_type, hm_ast.List) or node.h_type.name == 'list':
             print('before write_with_type:', ''.join(self.out))
+            i = len(self.out)
             self.s('HList_')
             self.write_type(node.h_type.types[0])
+            self.c.add(self.to_ctype(node.h_type.types[0]))
             self.ws()
             print('after write_with_type:', ''.join(self.out))
             if special:
@@ -413,8 +468,8 @@ class CGenerator(Generator):
         # if h_type.name != str(h_type):
         #     print(h_type, h_type.name);print(h_type.instance, h_type.instance.name);input()
         if h_type.name == 'list':
-            print(h_type)
-            input('?')
+            2#print(h_type)
+            #input('?')
         if hasattr(h_type, 'instance') and h_type.instance:
             h_type = h_type.instance
         if hasattr(h_type, 'types'):
@@ -422,26 +477,29 @@ class CGenerator(Generator):
                 if hasattr(h_type.types[i], 'instance') and h_type.types[i].instance:
                     h_type.types[i] = h_type.types[i].instance
 
+        print(h_type, h_type.__dict__, type(h_type))
+        
         if hasattr(h_type, 'name') and h_type.name in native_types:
             return native_types[h_type.name]
         elif hasattr(h_type, 'instance') and h_type.instance and h_type.instance.name in native_types:
-            print(h_type.name, h_type);input()
             return native_types[h_type.instance.name]
         else:
             return getattr(self, 'to_ctype_' + type(h_type).__name__.lower())(h_type)
 
     def to_ctype_function(self, h_type):
-        return self.to_ctype(h_type.types[1])
-
+        return '{0}REF{1}'.format(self.to_ctype(h_type.types[0]), '_'.join(self.to_ctype(h) for h in h_type.types[1:]))
+        
     def to_ctype_typeoperator(self, h_type):
         if h_type.name == 'list':
+            self.c.add(self.to_ctype(h_type.types[0]))
             return 'HList_{0}'.format(self.to_ctype(h_type.types[0]))
-        elif h_type.name == 'Function':
+        elif h_type.name == 'function':
             return 'HFunction'
         elif len(h_type.types) == 0:
             return 'H{0}'.format(h_type.name)
-        else:
-            return 'WTF'
+        elif h_type.name == '->':
+            return '{0}REF{1}'.format(self.to_ctype(h_type.types[0]),
+                                      '_'.join(self.to_ctype(h) for h in h_type.types[1:]))
 
     def to_ctype_typevariable(self, h_type):
         i = h_type.instance
@@ -453,6 +511,7 @@ class CGenerator(Generator):
             return h_type.name
 
     def to_ctype_list(self, h_type):
+        self.c.add(self.to_ctype(h_type.types[0]))
         return 'HList_{0}'.format(self.to_ctype(h_type.types[0]))
 
     def to_ctype_nonetype(self, h_type):

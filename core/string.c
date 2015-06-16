@@ -20,7 +20,7 @@ HString h_add_HString_HString(HString z, HString a) {
         z.chars = (char*)(realloc(z.chars, sizeof(char) * z.capacity));
     }
     for(int j = 0;j < a.length;j ++) { z.chars[z.length + j] = a.chars[j]; }
-    z.chars[z.length + a.length] = '\0';    
+    z.chars[z.length + a.length] = '\0';
     z.length += a.length;
 
     return z;
@@ -29,7 +29,7 @@ int h_length_HString_int(HString string) {
     return string.length;
 }
 
-HString h_print_HString_HString(HString string) {
+HString h_prints_HString_HString(HString string) {
     printf("%s\n", string.chars);
     return string;
 }
@@ -43,6 +43,14 @@ HString h_str_int_HString(int value) {
 
 HString h_str_HString_HString(HString string) {
     return string;
+}
+
+HString h_print_int_HString(int value) {
+    return h_prints_HString_HString(h_str_int_HString(value));
+}
+
+HString h_print_HString_HString(HString string) {
+    return h_prints_HString_HString(string);
 }
 
 HString h_read_HString_HString(HString z) {

@@ -10,5 +10,5 @@ def f0(f: y >> z, s: [y]) -> [z]:
 def even(a: Integer) -> String:
     return 'wtf'
 
-print(str(f0(even, [2])))
+print(f0(even, [2]))
 

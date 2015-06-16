@@ -21,8 +21,14 @@ TOP_ENV = {
     # * : Integer -> Integer -> Integer
     'filter': Multi_Function([Function(vars_type[3], Bool), List(vars_type[3]), List(vars_type[3])]),
     # filter : (g -> Bool) -> [g] -> [g]
-    'print': Function(String, String),
-    # print : (Integer | String) -> String
+    'print' : Union(
+       Function(Integer, String),
+       Function(String, String),
+       Function(List(Integer), String),
+       Function(List(String), String)),
+    'prints': Function(String, String),
+
+    # prints : String -> String
     'str': Union(
         Function(Integer, String),
         Function(String, String),

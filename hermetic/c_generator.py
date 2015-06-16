@@ -53,12 +53,20 @@ class Generator:
         return l + '\n' + s
 
     def render_c(self):
-        return self.render_includes() + '\n\n' + self.render_string() + '\n\n' + self.render_l()
+        return self.render_includes() + '\n\n' + self.render_string() + '\n\n' + self.render_number() + '\n\n' + self.render_l() + '\n\n' + self.render_collections()
 
     def render_string(self):
         return self.gen_c('string.c')
 
+    def render_number(self):
+        return self.gen_c('number.c')
+
+    def render_collections(self):
+        return self.gen_c('collections.c')
+
     def render_l(self):
+        self.c.add('int')
+        self.c.add('HString')
         input(str(self.c))
         return '\n'.join(self.gen_c('list.c', list_type='HList_' + elem_type, elem_type=elem_type) for elem_type in self.c)
 
@@ -450,7 +458,6 @@ class CGenerator(Generator):
     def write_assignment(self, node, depth=0):
         self.offset(depth)
         if node.label.label not in self.scopes[-1]:
-            print('AS', node.label.h_type.types[0], self.registry)
             self.write_type(node.label.h_type)
             self.ws()
             self.scopes[-1][node.label.label] = node.label.h_type

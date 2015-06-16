@@ -44,3 +44,20 @@ HString h_str_int_HString(int value) {
 HString h_str_HString_HString(HString string) {
     return string;
 }
+
+HString h_read_HString_HString(HString z) {
+    char buffer[256];
+    scanf("%s\n", &buffer);
+    HString z2 = HStringFrom(buffer);
+    return z2;
+}
+
+bool h_ends_with_HString_HString_bool(HString z, HString with) {
+    if (z.length < with.length) { return false; }
+    for(int j = 0; j < with.length; j++) {
+        if(z.chars[z.length - with.length + j] != with.chars[j]) {
+            return false;
+        }
+    }
+    return true;
+}

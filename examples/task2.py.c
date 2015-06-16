@@ -69,35 +69,35 @@ bool h_ends_with_HString_HString_bool(HString z, HString with) {
 }
 
 
-int h_h_add_int_int_int(int a, int b) {
+int h_h__add__int_int_int(int a, int b) {
 	return a + b;
 }
 
-int h_h_substract_int_int_int(int a, int b) {
+int h_h__substract__int_int_int(int a, int b) {
 	return a - b;
 }
 
-float h_h_add_float_float_float(float a, float b) {
+float h_h__add__float_float_float(float a, float b) {
 	return a + b;
 }
 
-float h_h_substract_float_float_float(float a, float b) {
+float h_h__substract__float_float_float(float a, float b) {
 	return a - b;
 }
 
-float h_h_mult_float_float_float(float a, float b) {
+float h_h__mult__float_float_float(float a, float b) {
 	return a * b;
 }
 
-float h_h_divide_float_float_float(float a, float b) {
+float h_h__divide__float_float_float(float a, float b) {
 	return a / b;
 }
 
-int h_h_mult_int_int_int(int a, int b) {
+int h_h__mult__int_int_int(int a, int b) {
 	return a * b;
 }
 
-int h_h_divide_int_int_int(int a, int b) {
+int h_h__divide__int_int_int(int a, int b) {
 	return a / b;
 }
 
@@ -120,6 +120,22 @@ float to_float_int_float(int value) {
 
 float to_float_float_float(float value) {
 	return value;
+}
+
+bool h_h__gt__int_int_bool(int a, int b) {
+	return a > b;
+}
+
+bool h_h__gt__float_float_bool(float a, float b) {
+	return a > b;
+}
+
+bool h_h__lte__int_int_bool(int a, int b) {
+	return a <= b;
+}
+
+bool h_h__lte__float_float_bool(float a, float b) {
+	return a <= b;
 }
 
 
@@ -184,6 +200,16 @@ HString h_str_HList_HString_HString(HList_HString list) {
 	z = h_add_HString_HString(z, h_str_HString_HString(list.values[list.length - 1]));
 	z = h_add_HString_HString(z, HStringFrom("]"));
 	return z;
+}
+
+int h_count_HList_HString_HStringREFbool_int(HList_HString list, bool(*z)(HString)) {
+	int count = 0;
+	for(int j = 0;j < list.length;j ++) {
+		if((*z)(list.values[j])) {
+			count++;
+		}
+	}
+	return count;
 }
 
 
@@ -252,6 +278,16 @@ HString h_str_HList_int_HString(HList_int list) {
 	return z;
 }
 
+int h_count_HList_int_intREFbool_int(HList_int list, bool(*z)(int)) {
+	int count = 0;
+	for(int j = 0;j < list.length;j ++) {
+		if((*z)(list.values[j])) {
+			count++;
+		}
+	}
+	return count;
+}
+
 
 
 	
@@ -291,23 +327,8 @@ HList_HString h_split_w_HString_HList_HString(HString from) {
 }
 
 
-HList_HString h_f0_intREFHString_HList_int_HList_HString(HString (*h_f)(int), HList_int h_s){
-    HList_HString h_out = HList_HStringOf(0);
-    for(int i=0;i<h_length_HList_int_int(h_s);i++){
-        int h_i = h_index_HList_int_int_int(h_s, i);
-        h_out = h_append_HList_HString_HString_HList_HString(h_out, (*h_f)(h_i));
-        2;
-        h_out;
-    }
-;
-    return h_out;
-}
-
-HString h_even_int_HString(int h_a){
-    return HStringFrom("'wtf'");
-}
-
 int main(){
-    h_print_HString_HString(h_str_HList_HString_HString(h_f0_intREFHString_HList_int_HList_HString(&h_even_int_HString, HList_intOf(1, 2))));
+    HList_HString h_z = h_split_w_HString_HList_HString(h_read_HString_HString(HStringFrom("'2'")));
+    h_z;
     return 0;
 }

@@ -573,7 +573,7 @@ def unify(t1, t2):
 
     a = prune(t1)
     b = prune(t2)
-    print('b:', a, type(a), '\t', b, type(b))
+    # print('b:', a, type(a), '\t', b, type(b))
     if isinstance(a, TypeVariable):
         if a != b:
             if occursInType(a, b):

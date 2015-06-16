@@ -61,6 +61,16 @@ HString h_str_%{list_type}_HString(%{list_type} list) {
 	return z;
 }
 
+int h_count_%{list_type}_%{elem_type}REFbool_int(%{list_type} list, bool(*z)(%{elem_type})) {
+	int count = 0;
+	for(int j = 0;j < list.length;j ++) {
+		if((*z)(list.values[j])) {
+			count++;
+		}
+	}
+	return count;
+}
+
 
 
 	

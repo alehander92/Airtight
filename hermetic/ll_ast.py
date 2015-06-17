@@ -128,7 +128,6 @@ class LLAst:
                 args=', '.join(str(arg) for arg in self.args),
                 h_type=self.h_type)
         else:
-            print(self.type, self.data)
             return '{offset}{label}: @{h_type}\n'.format(offset=self.offset(depth), label=self.type, h_type=self.h_type) +\
                '\n'.join('{offset}{label} = {value}'.format(offset=self.offset(depth + 1), label=label, value=self.render_value(value)) for label, value in self.data.items() if label != 'type')
 

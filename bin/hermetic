@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 import os, sys
-print(os.path.abspath('/usr/local/google/home/alivanov/hermetic/'))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-# print(sys.path)
 import ast
 from hermetic import hindley_milner_ast
 from hermetic import converter
@@ -11,28 +9,42 @@ from hermetic import top_env
 from hermetic import ll_ast
 from hermetic import c_generator
 
-def main(filename):
+def main(filename, args):
+    show_hm_ast         = '--hm-ast' in args
+    show_typed_hm_ast   = '--typed-hm-ast' in args
+    show_typed_c_ast    = '--typed-c-ast' in args
+    generate_binary     = '--to-binary' in args
+
     with open(filename, 'r') as f:
         code = f.read()
+
     python_ast = ast.parse(code)
     hm_ast = converter.PythonConverter().convert(python_ast)
-    print(str(hm_ast))
-    try:
-        print(hindley_milner_ast.analyse(hm_ast, top_env.TOP_ENV))
+    if show_hm_ast:
         print(str(hm_ast))
+    try:
+        hindley_milner_ast.analyse(hm_ast, top_env.TOP_ENV)
+        if show_typed_hm_ast:
+            print(str(hm_ast))
         typed_ast = ll_ast.convert_ast(hm_ast)
-        print(typed_ast)
+        if show_typed_c_ast:
+            print(typed_ast)
         c = c_generator.CGenerator(typed_ast).generate()
         with open(filename + '.c', 'w') as f:
             f.write(c)
+        if generate_binary:
+            os.system('c99 -o {0} {0}.py.c'.format(filename.split('.')[0]))
     except (hindley_milner_ast.ParseError, hindley_milner_ast.TypeError, hindley_milner_ast.NotUnifiedError) as a:
         print('ERROR {a}'.format(a=a))
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        print('compile filename')
+        print('bin/hermetic <filename> (generates <filename>.c)')
+        print('bin/hermetic <filename> --to-binary (generates <filename>.c and compiles it with c99)')
+        print('display options: --hm-ast --typed-hm-ast --typed-c-ast')
     else:
-        main(sys.argv[1])
+        args = sys.argv[2:]
+        main(sys.argv[1], args)
 
 
 

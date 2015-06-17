@@ -148,7 +148,6 @@ class PythonConverter:
         return self.convert_node(value, context)
 
     def convert_body(self, body, context):
-        print(body)
         if len(body) == 1:
             converted = self.convert_node(body[0], context)
             if not isinstance(converted, (hm_ast.Let, hm_ast.Letrec)):
@@ -246,7 +245,6 @@ class PythonConverter:
         =>
         Apply(Ident("a"), anInteger(2))
         '''
-        # print(self.convert_node(func))
         return hm_ast.Multi_Apply(self.convert_node(func), [self.convert_node(arg) for arg in args])
 
     def convert_lambda(self, args, body, context):

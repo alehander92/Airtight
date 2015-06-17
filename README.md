@@ -30,6 +30,7 @@ print(f_map(wtf, [2, 4])) # [2 4]
 However we just reuse Python3's syntax. We try to preserve the spirit and semantics
 in many cases, but look at it like a different language.
 
+
 Implementation
 ---------------
 
@@ -63,6 +64,11 @@ h_print_HList_HString_HString(
     HList_intOf(2, 2, 4)));
 ```
 yeah, you need a shower now, doncha
+
+syntactic sugar : `[Integer]` for list types, `y >> z` for function types,
+`Integer | Float` for union types. we have some extensions to the hindley milner
+inference algorithm, so the current type system is probably unsound and weird, but
+you have haskell/idris for that
 
 hermetic is just a little kid now and its quite buggy and a proof of concept
 however if you're interested, you have some ideas/questions, or you just wanna

@@ -30,6 +30,12 @@ print(f_map(wtf, [2, 4])) # [2 4]
 However we just reuse Python3's syntax. We try to preserve the spirit and semantics
 in many cases, but look at it like a different language.
 
+you can install it and use it like that
+```bash
+git clone https://github.com/alehander42/hermetic.git
+cd hermetic
+bin/hermetic # and
+```
 
 Implementation
 ---------------

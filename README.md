@@ -6,6 +6,11 @@ what if guido was a type theory fan?
 
 a python-like language with hindley-milner-like type system, which is compiled to c.
 
+With the help of
+---------
+code by [Robert Smallshire](http://smallshire.org.uk/sufficientlysmall/2010/04/11/a-hindley-milner-type-inference-implementation-in-python/comment-page-1/)
+(see below)
+
 Language
 ---------------
 

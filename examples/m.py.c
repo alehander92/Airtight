@@ -347,7 +347,11 @@ HList_HString h_split_w_HString_HList_HString(HString from) {
 }
 
 
-HList_HString h_f0_intREFHString_HList_int_HList_HString(HString (*h_f)(int), HList_int h_s){
+HString h_wtf_int_HString(int h_a){
+    return h_str_int_HString(h_a);
+}
+
+HList_HString h_f_map_intREFHString_HList_int_HList_HString(HString (*h_f)(int), HList_int h_s){
     HList_HString h_out = HList_HStringOf(0);
     for(int i=0;i<h_length_HList_int_int(h_s);i++){
         int h_i = h_index_HList_int_int_int(h_s, i);
@@ -359,11 +363,7 @@ HList_HString h_f0_intREFHString_HList_int_HList_HString(HString (*h_f)(int), HL
     return h_out;
 }
 
-HString h_even_int_HString(int h_a){
-    return HStringFrom("'wtf'");
-}
-
 int main(){
-    h_print_HList_HString_HString(h_f0_intREFHString_HList_int_HList_HString(&h_even_int_HString, HList_intOf(1, 2)));
+    h_print_HList_HString_HString(h_f_map_intREFHString_HList_int_HList_HString(&h_wtf_int_HString, HList_intOf(2, 2, 4)));
     return 0;
 }

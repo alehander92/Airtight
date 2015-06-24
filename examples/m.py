@@ -1,14 +1,13 @@
 @template(y, z)
-def f0(f: y >> z, s: [y]) -> [z]:
+def f_map(f: y >> z, s: [y]) -> [z]:
     out = []
     for i in s:
         out = append(out, f(i))
         2
     return out
 
+def wtf(a: Integer) -> String:
+	return str(a)
 
-def even(a: Integer) -> String:
-    return 'wtf'
-
-print(f0(even, [2])) #['wtf']
+print(f_map(wtf, [2, 4]))
 

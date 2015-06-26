@@ -55,7 +55,7 @@ HString h_print_HString_HString(HString string) {
 
 HString h_read_HString_HString(HString z) {
     char buffer[256];
-    scanf("%s\n", buffer);
+    int count = scanf("%s\n", buffer);
     HString z2 = HStringFrom(buffer);
     return z2;
 }

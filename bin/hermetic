@@ -33,7 +33,7 @@ def main(filename, args):
         with open(filename + '.c', 'w') as f:
             f.write(c)
         if generate_binary:
-            os.system('c99 -o {0} {0}.py.c'.format(filename.split('.')[0]))
+            os.system('c99 -o {0} {0}.py.c -O3'.format(filename.split('.')[0]))
     except (hindley_milner_ast.ParseError, hindley_milner_ast.TypeError, hindley_milner_ast.NotUnifiedError) as a:
         print('ERROR {a}'.format(a=a))
 

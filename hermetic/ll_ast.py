@@ -85,7 +85,18 @@ class LLAstGenerator:
         return LLAst(type='if', test=self.generate_node(node.test), body=self.generate_node(node.body), orelse=self.generate_node(node.orelse), h_type=node.h_type)
 
     def generate_for(self, node):
-        return LLAst(type='for', target=self.generate_node(node.target), iter=self.generate_node(node.iter), body=self.generate_node(node.body), h_type=node.h_type)
+        if isinstance(node.iter, Apply) and\
+           isinstance(node.iter.fn, Apply) and\
+           hasattr(node.iter.fn.fn, 'name') and node.iter.fn.fn.name == 'range':
+            return LLAst(
+                type='for_range',
+                target=self.generate_node(node.target),
+                start=self.generate_node(node.iter.fn.arg),
+                end=self.generate_node(node.iter.arg),
+                body=self.generate_node(node.body),
+                h_type=node.h_type)
+        else:
+            return LLAst(type='for', target=self.generate_node(node.target), iter=self.generate_node(node.iter), body=self.generate_node(node.body), h_type=node.h_type)
 
 class LLAst:
     def __init__(self, **kwargs):

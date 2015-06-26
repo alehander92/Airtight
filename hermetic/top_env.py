@@ -29,6 +29,9 @@ TOP_ENV = {
     'prints': Function(String, String),
 
     # prints : String -> String
+    'range': Multi_Function([Integer, Integer, [Integer]]),
+    # range: Integer -> Integer -> [Integer]
+
     'str': Union(
         Function(Integer, String),
         Function(String, String),

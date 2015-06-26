@@ -77,6 +77,16 @@ class PythonConverter:
                         [self.convert_node(node) for node in value.elts],
                         context)
 
+    def convert_augassign(self, target, op, value, context):
+        return self.convert_assign(
+                    [target],
+                    ast.BinOp(
+                        target,
+                        op,
+                        value),
+                    context)
+
+
     def convert_str(self, s, context):
         return hm_ast.aString(s)
 
@@ -154,6 +164,8 @@ class PythonConverter:
                 return converted
             elif context is None:
                 converted.body = hm_ast.Ident(converted.v)
+                return converted
+            else:
                 return converted
         else:
             current = len(body) - 1

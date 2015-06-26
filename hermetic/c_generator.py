@@ -289,6 +289,33 @@ class CGenerator(Generator):
         self.rcurly()
         self.nl()
 
+    def write_for_range(self, node, depth=0):
+        self.offset(depth)
+        self.s('for')
+        self.lparen()
+        self.s('int')
+        self.ws()
+        self.write_node(node.target)
+        self.s('=')
+        self.write_node(node.start)
+        self.s(';')
+        self.write_node(node.target)
+        self.s('<')
+        self.write_node(node.end)
+        self.s(';')
+        self.write_node(node.target)
+        self.s('++){')
+        self.nl()
+        body = node.body if isinstance(node.body, list) else [node.body]
+        for e in body:
+            self.write_node(e, depth + 1)
+
+            self.semi()
+            self.nl()
+        self.offset(depth)
+        self.rcurly()
+        self.nl()
+
     def write_ident(self, node, depth=0):
         self.offset(depth)
 

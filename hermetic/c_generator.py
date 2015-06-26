@@ -316,6 +316,21 @@ class CGenerator(Generator):
         self.rcurly()
         self.nl()
 
+    def write_while(self, node, depth=0):
+        self.offset(depth)
+        self.s('while(')
+        self.write_node(node.test)
+        self.s('){')
+        self.nl()
+        body = node.body if isinstance(node.body, list) else [node.body]
+        for e in body:
+            self.write_node(e, depth + 1)
+            self.semi()
+            self.nl()
+        self.offset(depth)
+        self.rcurly()
+        self.nl()
+
     def write_ident(self, node, depth=0):
         self.offset(depth)
 

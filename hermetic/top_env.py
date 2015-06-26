@@ -43,6 +43,12 @@ TOP_ENV = {
         Multi_Function([Float, Float, Bool])
         # > : Float -> Float -> Bool
     ),
+    'h__lt__': Union(
+        Multi_Function([Integer, Integer, Bool]),
+        # < : Integer -> Integer -> Bool
+        Multi_Function([Float, Float, Bool])
+        # < : Float -> Float -> Bool
+    ),
     'h__lte__': Union(
         Multi_Function([Integer, Integer, Bool]),
         # <= : Integer -> Integer -> Bool

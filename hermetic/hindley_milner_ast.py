@@ -79,6 +79,14 @@ class For(Top):
     def __str__(self):
         return 'For {0} in {1} {2}'.format(str(self.target), str(self.iter), str(self.body))
 
+class While(Top):
+    def __init__(self, test, body):
+        self.test = test
+        self.body = body
+
+    def __str__(self):
+        return 'While {0} {1}'.format(str(self.test), str(self.body))
+
 class Body(Top):
     """A list of expressions"""
 
@@ -390,6 +398,11 @@ def analyse(node, env, non_generic=None):
         new_non_generic = non_generic.copy()
         new_non_generic.add(target_type)
         return node.annotate(analyse(node.body, new_env, new_non_generic))
+    elif isinstance(node, While):
+        test_type = analyse(node.test, env, non_generic)
+        unify(Bool, test_type)
+        node.test.annotate(test_type)
+        return node.annotate(analyse(node.body, env, non_generic))
     elif isinstance(node, Lambda):
         arg_type = TypeVariable()
         new_env = env.copy()

@@ -1,5 +1,6 @@
 import ast
 import hermetic.hindley_milner_ast as hm_ast
+from hermetic.errors import *
 
 class PythonConverter:
     ''' converts the python ast
@@ -66,14 +67,14 @@ class PythonConverter:
         '''
 
 
-        if len(targets) == 1:
+        if len(targets) == 1 and hasattr(targets[0], 'id'):
             return hm_ast.Let(
                         targets[0].id,
                         self.convert_node(value),
                         context)
         else:
             return hm_ast.Letmany(
-                        [t.id for t in targets],
+                        [t.id for t in targets[0].elts],
                         [self.convert_node(node) for node in value.elts],
                         context)
 
@@ -211,6 +212,13 @@ class PythonConverter:
         return hm_ast.For(
             self.convert_node(iter, context),
             self.convert_node(target, context),
+            self.convert_body(body, context))
+
+    def convert_while(self, test, body, orelse, context):
+        if orelse:
+            raise NotSupportedError("else not supported after while")
+        return hm_ast.While(
+            self.convert_node(test, context),
             self.convert_body(body, context))
 
     def convert_subscript(self, value, slice, ctx, context):

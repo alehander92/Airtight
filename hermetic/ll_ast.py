@@ -93,10 +93,20 @@ class LLAstGenerator:
                 target=self.generate_node(node.target),
                 start=self.generate_node(node.iter.fn.arg),
                 end=self.generate_node(node.iter.arg),
-                body=self.generate_node(node.body),
+                body=self.generate_cons(node.body),
                 h_type=node.h_type)
         else:
-            return LLAst(type='for', target=self.generate_node(node.target), iter=self.generate_node(node.iter), body=self.generate_node(node.body), h_type=node.h_type)
+            return LLAst(type='for', target=self.generate_node(node.target), iter=self.generate_node(node.iter), body=self.generate_cons(node.body), h_type=node.h_type)
+
+    def generate_while(self, node):
+        return LLAst(type='while', test=self.generate_node(node.test), body=self.generate_cons(node.body), h_type=node.h_type)
+
+    def generate_cons(self, node):
+        body = self.generate_node(node)
+        if isinstance(body, list) and len(body) > 1 and body[-1].type == 'ident':
+            return body[:-1]
+        else:
+            return body
 
 class LLAst:
     def __init__(self, **kwargs):

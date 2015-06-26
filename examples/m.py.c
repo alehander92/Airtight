@@ -63,7 +63,7 @@ HString h_print_HString_HString(HString string) {
 
 HString h_read_HString_HString(HString z) {
     char buffer[256];
-    scanf("%s\n", buffer);
+    int count = scanf("%s\n", buffer);
     HString z2 = HStringFrom(buffer);
     return z2;
 }
@@ -79,155 +79,34 @@ bool h_ends_with_HString_HString_bool(HString z, HString with) {
 }
 
 
-int h_h__add___int_int_int(int a, int b) {
-	return a + b;
-}
-
-int h_h__substract___int_int_int(int a, int b) {
-	return a - b;
-}
-
-float h_h__add___float_float_float(float a, float b) {
-	return a + b;
-}
-
-float h_h__substract___float_float_float(float a, float b) {
-	return a - b;
-}
-
-float h_h__mult___float_float_float(float a, float b) {
-	return a * b;
-}
-
-float h_h__divide___float_float_float(float a, float b) {
-	return a / b;
-}
-
-int h_h__mult___int_int_int(int a, int b) {
-	return a * b;
-}
-
-int h_h__divide___int_int_int(int a, int b) {
-	return a / b;
-}
-
 int to_int_HString_int(HString value) {
 
     int i = 0;
     for(int j = 0; j <= value.length;j++) {
-    	i = 10 * i + (value.chars[i] - '0');
+        i = 10 * i + (value.chars[i] - '0');
     }
     return i;
 }
 
 int to_int_int_int(int value) {
-	return value;
+    return value;
 }
 
 float to_float_int_float(int value) {
-	return (float)value;
+    return (float)value;
 }
 
 float to_float_float_float(float value) {
-	return value;
-}
-
-bool h_h__gt___int_int_bool(int a, int b) {
-	return a > b;
-}
-
-bool h_h__gt___float_float_bool(float a, float b) {
-	return a > b;
+    return value;
 }
 
 bool h_h__lte___int_int_bool(int a, int b) {
-	return a <= b;
+    return a <= b;
 }
 
 bool h_h__lte___float_float_bool(float a, float b) {
-	return a <= b;
+    return a <= b;
 }
-
-
-typedef struct HList_int {
-    int* values;
-    size_t length;
-    size_t capacity;
-} HList_int;
-
-HList_int h_append_HList_int_int_HList_int(HList_int list, int elem) {
-    if(list.length + 1 > list.capacity) {
-        list.capacity *= 2;
-        list.values = (int*)realloc(list.values, sizeof(int) * list.capacity);
-    }
-    list.values[list.length] = elem;
-    list.length++;
-    return list;
-}
-
-HList_int h_pop_HList_int_int_HList_int(HList_int list, int elem) {
-    list.length--;
-    return list;
-}
-
-int h_length_HList_int_int(HList_int list) {
-    return list.length;
-}
-
-int h_index_HList_int_int_int(HList_int list, int index) {
-    return list.values[index];
-}
-
-HList_int h_slice_HList_int_int_int_HList_int(HList_int z, int from, int to) {
-    HList_int list;
-    list.values = (int*)malloc(sizeof(int) * (to - from));
-    list.length = to - from;
-    list.capacity = to - from;
-    for(int j = from;j < to;j ++) {
-        list.values[j - from] = z.values[j];
-    }
-    return list;
-}
-
-HList_int HList_intOf(size_t count, ...) {
-    va_list ap;
-    HList_int list;
-    list.values = (int*)(malloc(sizeof(int) * (count + 1)));
-    list.length = count;
-    list.capacity = count + 1;
-    va_start(ap, count);
-    for(int j = 0;j < count;j ++) { list.values[j] = va_arg(ap, int); }
-    return list;
-}
-
-HString h_str_HList_int_HString(HList_int list) {
-    HString z = HStringFrom("[");
-
-    for(int j = 0;j < list.length - 1;j ++) {
-        z = h_add_HString_HString(z, h_str_int_HString(list.values[j]));
-        z = h_add_HString_HString(z, HStringFrom(" "));
-    }
-    z = h_add_HString_HString(z, h_str_int_HString(list.values[list.length - 1]));
-    z = h_add_HString_HString(z, HStringFrom("]"));
-    return z;
-}
-
-HString h_print_HList_int_HString(HList_int list) {
-    return h_prints_HString_HString(h_str_HList_int_HString(list));
-}
-
-int h_count_HList_int_intREFbool_int(HList_int list, bool(*z)(int)) {
-    int count = 0;
-    for(int j = 0;j < list.length;j ++) {
-        if((*z)(list.values[j])) {
-            count++;
-        }
-    }
-    return count;
-}
-
-
-
 
 
 typedef struct HList_HString {
@@ -311,6 +190,87 @@ int h_count_HList_HString_HStringREFbool_int(HList_HString list, bool(*z)(HStrin
 
 
 
+typedef struct HList_int {
+    int* values;
+    size_t length;
+    size_t capacity;
+} HList_int;
+
+HList_int h_append_HList_int_int_HList_int(HList_int list, int elem) {
+    if(list.length + 1 > list.capacity) {
+        list.capacity *= 2;
+        list.values = (int*)realloc(list.values, sizeof(int) * list.capacity);
+    }
+    list.values[list.length] = elem;
+    list.length++;
+    return list;
+}
+
+HList_int h_pop_HList_int_int_HList_int(HList_int list, int elem) {
+    list.length--;
+    return list;
+}
+
+int h_length_HList_int_int(HList_int list) {
+    return list.length;
+}
+
+int h_index_HList_int_int_int(HList_int list, int index) {
+    return list.values[index];
+}
+
+HList_int h_slice_HList_int_int_int_HList_int(HList_int z, int from, int to) {
+    HList_int list;
+    list.values = (int*)malloc(sizeof(int) * (to - from));
+    list.length = to - from;
+    list.capacity = to - from;
+    for(int j = from;j < to;j ++) {
+        list.values[j - from] = z.values[j];
+    }
+    return list;
+}
+
+HList_int HList_intOf(size_t count, ...) {
+    va_list ap;
+    HList_int list;
+    list.values = (int*)(malloc(sizeof(int) * (count + 1)));
+    list.length = count;
+    list.capacity = count + 1;
+    va_start(ap, count);
+    for(int j = 0;j < count;j ++) { list.values[j] = va_arg(ap, int); }
+    return list;
+}
+
+HString h_str_HList_int_HString(HList_int list) {
+    HString z = HStringFrom("[");
+
+    for(int j = 0;j < list.length - 1;j ++) {
+        z = h_add_HString_HString(z, h_str_int_HString(list.values[j]));
+        z = h_add_HString_HString(z, HStringFrom(" "));
+    }
+    z = h_add_HString_HString(z, h_str_int_HString(list.values[list.length - 1]));
+    z = h_add_HString_HString(z, HStringFrom("]"));
+    return z;
+}
+
+HString h_print_HList_int_HString(HList_int list) {
+    return h_prints_HString_HString(h_str_HList_int_HString(list));
+}
+
+int h_count_HList_int_intREFbool_int(HList_int list, bool(*z)(int)) {
+    int count = 0;
+    for(int j = 0;j < list.length;j ++) {
+        if((*z)(list.values[j])) {
+            count++;
+        }
+    }
+    return count;
+}
+
+
+
+
+
 
 HList_int h_range_int_int_HList_int(int from, int to) {
     HList_int result;
@@ -347,23 +307,21 @@ HList_HString h_split_w_HString_HList_HString(HString from) {
 }
 
 
-HString h_wtf_int_HString(int h_a){
-    return h_str_int_HString(h_a);
-}
-
-HList_HString h_f_map_intREFHString_HList_int_HList_HString(HString (*h_f)(int), HList_int h_s){
-    HList_HString h_out = HList_HStringOf(0);
+HList_int h_f_map_intREFint_HList_int_HList_int(int (*h_f)(int), HList_int h_s){
+    HList_int h_out = HList_intOf(0);
     for(int i=0;i<h_length_HList_int_int(h_s);i++){
         int h_i = h_index_HList_int_int_int(h_s, i);
-        h_out = h_append_HList_HString_HString_HList_HString(h_out, (*h_f)(h_i));
-        2;
-        h_out;
+        h_out = h_append_HList_int_int_HList_int(h_out, (*h_f)(h_i));
     }
 ;
     return h_out;
 }
 
+int h_nope_int_int(int h_a){
+    return (h_a + 4);
+}
+
 int main(){
-    h_print_HList_HString_HString(h_f_map_intREFHString_HList_int_HList_HString(&h_wtf_int_HString, HList_intOf(2, 2, 4)));
+    h_print_HList_int_HString(h_f_map_intREFint_HList_int_HList_int(&h_nope_int_int, HList_intOf(2, 2, 4)));
     return 0;
 }

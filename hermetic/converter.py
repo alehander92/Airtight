@@ -11,7 +11,7 @@ class PythonConverter:
     OPERATOR_MAGIC_FUNCTIONS = {
         ast.Add: '__add__',
         ast.Sub: '__substract__',
-        ast.Mult: '__multiply__',
+        ast.Mult: '__mult__',
         ast.FloorDiv: '__real_divide__',
         ast.Div: '__divide__',
         ast.Mod: '__percent__',

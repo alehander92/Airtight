@@ -79,38 +79,6 @@ bool h_ends_with_HString_HString_bool(HString z, HString with) {
 }
 
 
-int h_h__add___int_int_int(int a, int b) {
-    return a + b;
-}
-
-int h_h__substract___int_int_int(int a, int b) {
-    return a - b;
-}
-
-float h_h__add___float_float_float(float a, float b) {
-    return a + b;
-}
-
-float h_h__substract___float_float_float(float a, float b) {
-    return a - b;
-}
-
-float h_h__mult___float_float_float(float a, float b) {
-    return a * b;
-}
-
-float h_h__divide___float_float_float(float a, float b) {
-    return a / b;
-}
-
-int h_h__mult___int_int_int(int a, int b) {
-    return a * b;
-}
-
-int h_h__divide___int_int_int(int a, int b) {
-    return a / b;
-}
-
 int to_int_HString_int(HString value) {
 
     int i = 0;
@@ -130,22 +98,6 @@ float to_float_int_float(int value) {
 
 float to_float_float_float(float value) {
     return value;
-}
-
-bool h_h__gt___int_int_bool(int a, int b) {
-    return a > b;
-}
-
-bool h_h__gt___float_float_bool(float a, float b) {
-    return a > b;
-}
-
-bool h_h__lt___int_int_bool(int a, int b) {
-    return a < b;
-}
-
-bool h_h__lt___float_float_bool(float a, float b) {
-    return a < b;
 }
 
 bool h_h__lte___int_int_bool(int a, int b) {
@@ -358,8 +310,8 @@ HList_HString h_split_w_HString_HList_HString(HString from) {
 int h_sum_int_int(int h_n){
     HStringFrom("'sum of the numbers from 0 to n inclusively'");
     int h_result = 0;
-    for(int h_i=0;h_i<h_h__add___int_int_int(h_n, 1);h_i++){
-        h_result = h_h__add___int_int_int(h_result, h_i);
+    for(int h_i=0;h_i<(h_n + 1);h_i++){
+        h_result = (h_result + h_i);
     }
 ;
     return h_result;

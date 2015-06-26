@@ -368,6 +368,15 @@ class CGenerator(Generator):
         self.write_args(node.args)
         self.rparen()
 
+    def write_binop(self, node, depth=0):
+        self.offset(depth)
+
+        self.lparen()
+        self.write_node(node.left)
+        self.s(' {0} '.format(node.op))
+        self.write_node(node.right)
+        self.rparen()
+
     def write_special_ident(self, node, arg_types, return_type, depth=0):
         self.offset(depth)
         self.s('h_' + node.label)

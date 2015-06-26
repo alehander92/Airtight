@@ -6,6 +6,15 @@ def convert_ast(hm_ast):
     '''
     return LLAstGenerator(hm_ast).generate()
 
+OPS = {
+    '_add__':              '+',
+    '_substract__':        '-',
+    '_mult__':             '*',
+    '_divide__':           '/',
+    '_gt__':               '>',
+    '_lt__':               '<',
+}
+
 class LLAstGenerator:
     def __init__(self, hm_ast):
         self.hm_ast = hm_ast
@@ -72,8 +81,15 @@ class LLAstGenerator:
 
     def generate_apply(self, node):
         if isinstance(node.fn, Apply):
-            apply_ast = self.generate_apply(node.fn)
-            apply_ast.args.append(self.generate_node(node.arg))
+            if self.is_numeric_binop(node.fn.fn):
+                apply_ast = LLAst(
+                    type='binop',
+                    op=OPS[node.fn.fn.name[2:]],
+                    left=self.generate_node(node.fn.arg),
+                    right=self.generate_node(node.arg))
+            else:
+                apply_ast = self.generate_apply(node.fn)
+                apply_ast.args.append(self.generate_node(node.arg))
         else:
             apply_ast = LLAst(type='apply', function=self.generate_node(node.fn), args=[self.generate_node(node.arg)], h_type=node.h_type, _special=False)
         return apply_ast
@@ -107,6 +123,9 @@ class LLAstGenerator:
             return body[:-1]
         else:
             return body
+
+    def is_numeric_binop(self, node):
+        return hasattr(node, 'name') and node.name[:2] == 'h_' and node.name[-2:] == '__' and node.name[2:] in OPS
 
 class LLAst:
     def __init__(self, **kwargs):

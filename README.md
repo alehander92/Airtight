@@ -3,6 +3,8 @@
 an experimental frankenstein
 
 what if guido was a type theory fan?
+what if we went to an alternate dimension, where python starts like a typed functional language, 
+instead of a class-based oop one?
 
 a python-like language with hindley-milner-like type system, which is compiled to c.
 

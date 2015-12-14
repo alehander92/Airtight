@@ -17,6 +17,7 @@ Language
 ---------------
 
 We use the new syntax for annotations in Python3
+
 You can add optional annotations to args and returns:
 
 ```python
@@ -63,7 +64,7 @@ Implementation
 * hindley milner typed ast -> lower level python-like typed ast (converting back to python/c like multiarg functions and assignment nodes)
 * lower level python-like typed ast -> c code (generate c code recursively for each node and based on the core library)
 
-the core library contains some predefined functions, accessible from hermetic and
+The core library contains some predefined functions, accessible from hermetic and
 some template files which implement generic hermetic functions in c
 (for example `core/list.c` has placeholders like `%{list_type}` and `%{elem_type}` and
 different copies of the functions are generated for each `%{elem_type}` in a program})

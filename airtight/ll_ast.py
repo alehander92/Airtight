@@ -1,4 +1,4 @@
-from hermetic.hindley_milner_ast import *
+from airtight.hindley_milner_ast import *
 
 def convert_ast(hm_ast):
     '''converts hindley-milner typed scheme-like ast to a
@@ -22,7 +22,7 @@ class LLAstGenerator:
     def generate(self):
         node = self.generate_node(self.hm_ast)
         if isinstance(node, list):
-            return LLAst(type='source',expressions=node, h_type=node[-1].h_type)
+            return LLAst(type='source',expressions=node, a_type=node[-1].a_type)
         else:
             return node
 
@@ -41,18 +41,18 @@ class LLAstGenerator:
         if isinstance(node.defn, Lambda):
             let_ast = LLAst(
                 type    = 'method',
-                label   = LLAst(type='ident', label=node.v, h_type=node.defn.h_type),
+                label   = LLAst(type='ident', label=node.v, a_type=node.defn.a_type),
                 body    = self.generate_lambda(node.defn),
-                h_type  = node.defn.h_type,
-                h_native = node.h_native,
-                h_vars  = node.h_vars,
-                h_return_type = node.defn.h_return_type)
+                a_type  = node.defn.a_type,
+                a_native = node.a_native,
+                a_vars  = node.a_vars,
+                a_return_type = node.defn.a_return_type)
         else:
             let_ast = LLAst(
                 type    = 'assignment',
-                label   = LLAst(type='ident', label=node.v, h_type=node.defn.h_type),
+                label   = LLAst(type='ident', label=node.v, a_type=node.defn.a_type),
                 right   = self.generate_node(node.defn),
-                h_type  = node.h_type)
+                a_type  = node.a_type)
         body_ast = self.generate_node(node.body)
         return [let_ast] + body_ast if isinstance(body_ast, list) else [let_ast, body_ast]
 
@@ -64,9 +64,9 @@ class LLAstGenerator:
                 type    = 'lambda',
                 args    = [],
                 body    = self.generate_node(node.body),
-                h_type  = node.h_type,
-                h_return_type = node.h_return_type)
-        lambda_ast.args = [LLAst(type='ident', label=node.v, h_type=node.h_type.types[0])] + lambda_ast.args
+                a_type  = node.a_type,
+                a_return_type = node.a_return_type)
+        lambda_ast.args = [LLAst(type='ident', label=node.v, a_type=node.a_type.types[0])] + lambda_ast.args
         return lambda_ast
 
     def generate_ident(self, node):
@@ -75,7 +75,7 @@ class LLAstGenerator:
             type_label = type_label[2:]
         elif type_label[0] == 'a':
             type_label = type_label[1:]
-        return LLAst(type=type_label.lower(), label=node.name, h_type=node.h_type)
+        return LLAst(type=type_label.lower(), label=node.name, a_type=node.a_type)
 
     generate_aninteger = generate_afloat = generate_aboolean = generate_astring = generate_ident
 
@@ -91,14 +91,14 @@ class LLAstGenerator:
                 apply_ast = self.generate_apply(node.fn)
                 apply_ast.args.append(self.generate_node(node.arg))
         else:
-            apply_ast = LLAst(type='apply', function=self.generate_node(node.fn), args=[self.generate_node(node.arg)], h_type=node.h_type, _special=False)
+            apply_ast = LLAst(type='apply', function=self.generate_node(node.fn), args=[self.generate_node(node.arg)], a_type=node.a_type, _special=False)
         return apply_ast
 
     def generate_alist(self, node):
-        return LLAst(type='list', items=[self.generate_node(e) for e in node.items], h_type=node.h_type)
+        return LLAst(type='list', items=[self.generate_node(e) for e in node.items], a_type=node.a_type)
 
     def generate_if(self, node):
-        return LLAst(type='if', test=self.generate_node(node.test), body=self.generate_node(node.body), orelse=self.generate_node(node.orelse), h_type=node.h_type)
+        return LLAst(type='if', test=self.generate_node(node.test), body=self.generate_node(node.body), orelse=self.generate_node(node.orelse), a_type=node.a_type)
 
     def generate_for(self, node):
         if isinstance(node.iter, Apply) and\
@@ -110,12 +110,12 @@ class LLAstGenerator:
                 start=self.generate_node(node.iter.fn.arg),
                 end=self.generate_node(node.iter.arg),
                 body=self.generate_cons(node.body),
-                h_type=node.h_type)
+                a_type=node.a_type)
         else:
-            return LLAst(type='for', target=self.generate_node(node.target), iter=self.generate_node(node.iter), body=self.generate_cons(node.body), h_type=node.h_type)
+            return LLAst(type='for', target=self.generate_node(node.target), iter=self.generate_node(node.iter), body=self.generate_cons(node.body), a_type=node.a_type)
 
     def generate_while(self, node):
-        return LLAst(type='while', test=self.generate_node(node.test), body=self.generate_cons(node.body), h_type=node.h_type)
+        return LLAst(type='while', test=self.generate_node(node.test), body=self.generate_cons(node.body), a_type=node.a_type)
 
     def generate_cons(self, node):
         body = self.generate_node(node)
@@ -125,7 +125,7 @@ class LLAstGenerator:
             return body
 
     def is_numeric_binop(self, node):
-        return hasattr(node, 'name') and node.name[:2] == 'h_' and node.name[-2:] == '__' and node.name[2:] in OPS
+        return hasattr(node, 'name') and node.name[:2] == 'a_' and node.name[-2:] == '__' and node.name[2:] in OPS
 
 class LLAst:
     def __init__(self, **kwargs):
@@ -138,37 +138,37 @@ class LLAst:
 
     def render(self, depth=0):
         if self.type == 'method':
-            return '{offset}method {label}({args}) @ {h_type}\n{body}'.format(
+            return '{offset}method {label}({args}) @ {a_type}\n{body}'.format(
                 offset=self.offset(depth),
                 label=str(self.label),
                 args=', '.join(str(arg) for arg in self.body.args),
-                h_type=self.h_type,
+                a_type=self.a_type,
                 body=str(self.body.body))
         elif self.type == 'assignment':
-            return '{offset}assignment[{label} : {value}] @ {h_type}'.format(
+            return '{offset}assignment[{label} : {value}] @ {a_type}'.format(
                 offset=self.offset(depth),
                 label=str(self.label),
                 value=str(self.right),
-                h_type=self.h_type)
+                a_type=self.a_type)
         elif len(self.data) == 3 and 'label' in self.data:
-            return '{offset}{type}[{label}] @ {h_type}'.format(
+            return '{offset}{type}[{label}] @ {a_type}'.format(
                 offset=self.offset(depth),
                 type=self.type,
                 label=str(self.label),
-                h_type=self.h_type)
+                a_type=self.a_type)
         elif self.type == 'source':
-            return '{offset}source: @ {h_type}\n{body}'.format(
+            return '{offset}source: @ {a_type}\n{body}'.format(
                 offset=self.offset(depth),
-                h_type=self.h_type,
+                a_type=self.a_type,
                 body='\n'.join(s.render(depth + 1) for s in self.expressions))
         elif self.type == 'apply':
-            return '{offset}call {label}({args}) @ {h_type}'.format(
+            return '{offset}call {label}({args}) @ {a_type}'.format(
                 offset=self.offset(depth),
                 label=str(self.function),
                 args=', '.join(str(arg) for arg in self.args),
-                h_type=self.h_type)
+                a_type=self.a_type)
         else:
-            return '{offset}{label}: @{h_type}\n'.format(offset=self.offset(depth), label=self.type, h_type=self.h_type) +\
+            return '{offset}{label}: @{a_type}\n'.format(offset=self.offset(depth), label=self.type, a_type=self.a_type) +\
                '\n'.join('{offset}{label} = {value}'.format(offset=self.offset(depth + 1), label=label, value=self.render_value(value)) for label, value in self.data.items() if label != 'type')
 
     def render_value(self, value, depth=0):

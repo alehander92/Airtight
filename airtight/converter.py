@@ -1,6 +1,6 @@
 import ast
-import hermetic.hindley_milner_ast as hm_ast
-from hermetic.errors import *
+import airtight.hindley_milner_ast as hm_ast
+from airtight.errors import *
 
 class PythonConverter:
     ''' converts the python ast
@@ -46,7 +46,7 @@ class PythonConverter:
         return getattr(self, 'convert_' + str(node.__class__.__name__).lower())(
                        context=context, **self.node_dict(node))
 
-    def convert_module(self, body, context):
+    def convert_module(self, body, context, docstring=None):
         return self.convert_body(body, context)
 
     def convert_assign(self, targets, value, context):
@@ -97,7 +97,7 @@ class PythonConverter:
         else:
             return hm_ast.anInteger(n)
 
-    def convert_functiondef(self, name, args, body, decorator_list, returns, context):
+    def convert_functiondef(self, name, args, body, decorator_list, returns, context, docstring=None):
         '''
         def name(arg, arg2):
             return arg
@@ -120,14 +120,14 @@ class PythonConverter:
                     self.convert_body(body, None),
                     expected=expected),
                 context)
-        result.h_native = False
-        result.h_vars = []
+        result.a_native = False
+        result.a_vars = []
         if decorator_list:
             if isinstance(decorator_list[0], ast.Name) and decorator_list[0].id == 'native':
-                result.h_native = True
+                result.a_native = True
             if isinstance(decorator_list[-1], ast.Call) and decorator_list[-1].func.id == 'template':
-                # result.h_vars = vars.keys
-                result.h_vars = [vars[arg.id] for arg in decorator_list[-1].args] # vars.keys()
+                # result.a_vars = vars.keys
+                result.a_vars = [vars[arg.id] for arg in decorator_list[-1].args] # vars.keys()
         return result
 
     def convert_annotation(self, annotation, vars):
@@ -190,16 +190,16 @@ class PythonConverter:
         2 / 2
         =>
         Multi_Apply(
-            Ident('h_divide'),
+            Ident('a_divide'),
             [Integer(2), Integer(2)])
         '''
         return hm_ast.Multi_Apply(
-            hm_ast.Ident('h' + self.OPERATOR_MAGIC_FUNCTIONS[type(op)]),
+            hm_ast.Ident('a' + self.OPERATOR_MAGIC_FUNCTIONS[type(op)]),
             [self.convert_node(left, context), self.convert_node(right, context)])
 
     def convert_compare(self, ops, left, comparators, context):
         return hm_ast.Multi_Apply(
-            hm_ast.Ident('h' + self.OPERATOR_MAGIC_FUNCTIONS[type(ops[0])]),
+            hm_ast.Ident('a' + self.OPERATOR_MAGIC_FUNCTIONS[type(ops[0])]),
             [self.convert_node(left, context), self.convert_node(comparators[0], context)])
 
     def convert_if(self, test, body, orelse, context):
@@ -224,12 +224,12 @@ class PythonConverter:
     def convert_subscript(self, value, slice, ctx, context):
         if isinstance(slice, ast.Index):
             return hm_ast.Multi_Apply(
-                hm_ast.Ident('h' + self.OPERATOR_MAGIC_FUNCTIONS[type(slice)]), [
+                hm_ast.Ident('a' + self.OPERATOR_MAGIC_FUNCTIONS[type(slice)]), [
                 self.convert_node(value, context),
                 self.convert_node(slice.value)])
         else:
             return hm_ast.Multi_Apply(
-                hm_ast.Ident('h' + self.OPERATOR_MAGIC_FUNCTIONS[type(slice)]), [
+                hm_ast.Ident('a' + self.OPERATOR_MAGIC_FUNCTIONS[type(slice)]), [
                 self.convert_node(value, context),
                 self.convert_node(slice.lower) if slice.lower else hm_ast.anInteger(0),
                 self.convert_node(slice.upper) if slice.upper else hm_ast.Multi_Apply(
@@ -259,7 +259,7 @@ class PythonConverter:
         '''
         return hm_ast.aList([self.convert_node(elt) for elt in elts])
 
-    def convert_call(self, func, args, keywords, starargs, kwargs, context):
+    def convert_call(self, func, args, keywords, context):
         '''
         a(2)
         =>

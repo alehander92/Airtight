@@ -3,7 +3,7 @@ from . import errors
 
 class ASTRewriter:
     '''
-    Rewrites builtin ast to hermetic ast
+    Rewrites builtin ast to airtight ast
     Checks for unsupported python syntax
     '''
 
@@ -45,7 +45,7 @@ class ASTRewriter:
             return node
         elif type(node) in self.NOT_SUPPORTED:
             raise errors.NotSupportedError(
-                '%s is not supported in hermetic' % type(node).__name__)
+                '%s is not supported in airtight' % type(node).__name__)
 
         for c, child in node.__dict__.items():
             setattr(node, c, self._rewrite_node(child))
@@ -54,10 +54,10 @@ class ASTRewriter:
     def _rewrite_arguments(self, node):
         if node.vararg:
             raise errors.NotSupportedError(
-                "vararg *%s is not supported in hermetic" % node.vararg.arg)
+                "vararg *%s is not supported in airtight" % node.vararg.arg)
         elif node.kwarg:
             raise errors.NotSupportedError(
-                "kwarg **%s is not supported in hermetic" % node.kwarg.arg)
+                "kwarg **%s is not supported in airtight" % node.kwarg.arg)
         else:
             return node
 
@@ -143,5 +143,5 @@ class ASTRewriter:
 
     def _rewrite_nameconstant(self, node):
         if node.id == 'None':
-            raise self.NotSupportedError('None isn\'t used in hermetic')
+            raise self.NotSupportedError('None isn\'t used in airtight')
         return node

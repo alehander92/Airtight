@@ -1,5 +1,5 @@
 from nose.tools import assert_equal, assert_raises, raises
-from hermetic.type_checker import TypeChecker
+from airtight.type_checker import TypeChecker
 import ast
 
 class TestTypeChecker:

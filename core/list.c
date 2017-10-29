@@ -4,7 +4,7 @@ typedef struct %{list_type} {
     size_t capacity;
 } %{list_type};
 
-%{list_type} h_append_%{list_type}_%{elem_type}_%{list_type}(%{list_type} list, %{elem_type} elem) {
+%{list_type} a_append_%{list_type}_%{elem_type}_%{list_type}(%{list_type} list, %{elem_type} elem) {
     if(list.length + 1 > list.capacity) {
         list.capacity *= 2;
         list.values = (%{elem_type}*)realloc(list.values, sizeof(%{elem_type}) * list.capacity);
@@ -14,20 +14,20 @@ typedef struct %{list_type} {
     return list;
 }
 
-%{list_type} h_pop_%{list_type}_%{elem_type}_%{list_type}(%{list_type} list, %{elem_type} elem) {
+%{list_type} a_pop_%{list_type}_%{elem_type}_%{list_type}(%{list_type} list, %{elem_type} elem) {
     list.length--;
     return list;
 }
 
-int h_length_%{list_type}_int(%{list_type} list) {
+int a_length_%{list_type}_int(%{list_type} list) {
     return list.length;
 }
 
-%{elem_type} h_index_%{list_type}_int_%{elem_type}(%{list_type} list, int index) {
+%{elem_type} a_index_%{list_type}_int_%{elem_type}(%{list_type} list, int index) {
     return list.values[index];
 }
 
-%{list_type} h_slice_%{list_type}_int_int_%{list_type}(%{list_type} z, int from, int to) {
+%{list_type} a_slice_%{list_type}_int_int_%{list_type}(%{list_type} z, int from, int to) {
     %{list_type} list;
     list.values = (%{elem_type}*)malloc(sizeof(%{elem_type}) * (to - from));
     list.length = to - from;
@@ -49,23 +49,23 @@ int h_length_%{list_type}_int(%{list_type} list) {
     return list;
 }
 
-HString h_str_%{list_type}_HString(%{list_type} list) {
-    HString z = HStringFrom("[");
+AString a_str_%{list_type}_AString(%{list_type} list) {
+    AString z = AStringFrom("[");
 
     for(int j = 0;j < list.length - 1;j ++) {
-        z = h_add_HString_HString(z, h_str_%{elem_type}_HString(list.values[j]));
-        z = h_add_HString_HString(z, HStringFrom(" "));
+        z = a_add_AString_AString(z, a_str_%{elem_type}_AString(list.values[j]));
+        z = a_add_AString_AString(z, AStringFrom(" "));
     }
-    z = h_add_HString_HString(z, h_str_%{elem_type}_HString(list.values[list.length - 1]));
-    z = h_add_HString_HString(z, HStringFrom("]"));
+    z = a_add_AString_AString(z, a_str_%{elem_type}_AString(list.values[list.length - 1]));
+    z = a_add_AString_AString(z, AStringFrom("]"));
     return z;
 }
 
-HString h_print_%{list_type}_HString(%{list_type} list) {
-    return h_prints_HString_HString(h_str_%{list_type}_HString(list));
+AString a_print_%{list_type}_AString(%{list_type} list) {
+    return a_prints_AString_AString(a_str_%{list_type}_AString(list));
 }
 
-int h_count_%{list_type}_%{elem_type}REFbool_int(%{list_type} list, bool(*z)(%{elem_type})) {
+int a_count_%{list_type}_%{elem_type}REFbool_int(%{list_type} list, bool(*z)(%{elem_type})) {
     int count = 0;
     for(int j = 0;j < list.length;j ++) {
         if((*z)(list.values[j])) {

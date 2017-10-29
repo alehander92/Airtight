@@ -7,7 +7,7 @@
               by Cardelli.
 .. moduleauthor:: Robert Smallshire
 '''
-'''adapted for hermetic from Alexander Ivanov
+'''adapted for airtight from Alexander Ivanov
    original version from
    http://smallshire.org.uk/sufficientlysmall/2010/04/11/a-hindley-milner-type-inference-implementation-in-python/comment-page-1/
 '''
@@ -22,11 +22,11 @@ import copy
 # will be inferred
 
 class Top:
-    h_type = None
-    h_native = False
-    def annotate(self, h_type):
-        self.h_type = h_type
-        return h_type
+    a_type = None
+    a_native = False
+    def annotate(self, a_type):
+        self.a_type = a_type
+        return a_type
 
 class Lambda(Top):
     """Lambda abstraction"""
@@ -39,7 +39,7 @@ class Lambda(Top):
 
     def __str__(self):
         return "(fn {v}@{t} => {body})".format(v=self.v,
-                                             t=self.h_type.types[0] if self.h_type else '',
+                                             t=self.a_type.types[0] if self.a_type else '',
                                              body=self.body)
 
 class LambdaNoArgs(Top):
@@ -106,7 +106,7 @@ class Ident(Top):
         self.name = name
 
     def __str__(self):
-        return '{name}@{type}'.format(name=str(self.name), type=str(self.h_type))
+        return '{name}@{type}'.format(name=str(self.name), type=str(self.a_type))
 
 class anInteger(Ident):
     pass
@@ -420,7 +420,7 @@ def analyse(node, env, non_generic=None):
             # print('UNIFY RET', expected_type, result_type)
             unify(expected_type, result_type)
             # print('UN', expected_type, result_type)
-        node.h_return_type = result_type
+        node.a_return_type = result_type
         return node.annotate(Function(arg_type, result_type))
     elif isinstance(node, LambdaNoArgs):
         return node.annotate(analyse(node.body, env, non_generic))

@@ -6,14 +6,14 @@
 #include<stdio.h>
 #include<errno.h>
 
-typedef struct HString {
+typedef struct AString {
     char* chars;
     size_t length;
     size_t capacity;
-} HString;
+} AString;
 
-HString HStringFrom(char* s) {
-    HString string;
+AString AStringFrom(char* s) {
+    AString string;
     string.capacity = strlen(s) + 1;
     string.chars = (char*)malloc(sizeof(char) * string.capacity);
     string.length = string.capacity - 1;
@@ -22,7 +22,7 @@ HString HStringFrom(char* s) {
     return string;
 }
 
-HString h_add_HString_HString(HString z, HString a) {
+AString a_add_AString_AString(AString z, AString a) {
     if (a.length + z.length + 1 >= z.capacity) {
         z.capacity *= 2;
         z.chars = (char*)(realloc(z.chars, sizeof(char) * z.capacity));
@@ -33,42 +33,42 @@ HString h_add_HString_HString(HString z, HString a) {
 
     return z;
 }
-int h_length_HString_int(HString string) {
+int a_length_AString_int(AString string) {
     return string.length;
 }
 
-HString h_prints_HString_HString(HString string) {
+AString a_prints_AString_AString(AString string) {
     printf("%s\n", string.chars);
     return string;
 }
 
-HString h_str_int_HString(int value) {
+AString a_str_int_AString(int value) {
     char buffer[22];
     snprintf(buffer, 22, "%d", value);
-    HString z = HStringFrom(buffer);
+    AString z = AStringFrom(buffer);
     return z;
 }
 
-HString h_str_HString_HString(HString string) {
+AString a_str_AString_AString(AString string) {
     return string;
 }
 
-HString h_print_int_HString(int value) {
-    return h_prints_HString_HString(h_str_int_HString(value));
+AString a_print_int_AString(int value) {
+    return a_prints_AString_AString(a_str_int_AString(value));
 }
 
-HString h_print_HString_HString(HString string) {
-    return h_prints_HString_HString(string);
+AString a_print_AString_AString(AString string) {
+    return a_prints_AString_AString(string);
 }
 
-HString h_read_HString_HString(HString z) {
+AString a_read_AString_AString(AString z) {
     char buffer[256];
     int count = scanf("%s\n", buffer);
-    HString z2 = HStringFrom(buffer);
+    AString z2 = AStringFrom(buffer);
     return z2;
 }
 
-bool h_ends_with_HString_HString_bool(HString z, HString with) {
+bool a_ends_wita_AString_AString_bool(AString z, AString with) {
     if (z.length < with.length) { return false; }
     for(int j = 0; j < with.length; j++) {
         if(z.chars[z.length - with.length + j] != with.chars[j]) {
@@ -79,7 +79,7 @@ bool h_ends_with_HString_HString_bool(HString z, HString with) {
 }
 
 
-int to_int_HString_int(HString value) {
+int to_int_AString_int(AString value) {
 
     int i = 0;
     for(int j = 0; j <= value.length;j++) {
@@ -100,103 +100,22 @@ float to_float_float_float(float value) {
     return value;
 }
 
-bool h_h__lte___int_int_bool(int a, int b) {
+bool a_a__lte___int_int_bool(int a, int b) {
     return a <= b;
 }
 
-bool h_h__lte___float_float_bool(float a, float b) {
+bool a_a__lte___float_float_bool(float a, float b) {
     return a <= b;
 }
 
 
-typedef struct HList_HString {
-    HString* values;
-    size_t length;
-    size_t capacity;
-} HList_HString;
-
-HList_HString h_append_HList_HString_HString_HList_HString(HList_HString list, HString elem) {
-    if(list.length + 1 > list.capacity) {
-        list.capacity *= 2;
-        list.values = (HString*)realloc(list.values, sizeof(HString) * list.capacity);
-    }
-    list.values[list.length] = elem;
-    list.length++;
-    return list;
-}
-
-HList_HString h_pop_HList_HString_HString_HList_HString(HList_HString list, HString elem) {
-    list.length--;
-    return list;
-}
-
-int h_length_HList_HString_int(HList_HString list) {
-    return list.length;
-}
-
-HString h_index_HList_HString_int_HString(HList_HString list, int index) {
-    return list.values[index];
-}
-
-HList_HString h_slice_HList_HString_int_int_HList_HString(HList_HString z, int from, int to) {
-    HList_HString list;
-    list.values = (HString*)malloc(sizeof(HString) * (to - from));
-    list.length = to - from;
-    list.capacity = to - from;
-    for(int j = from;j < to;j ++) {
-        list.values[j - from] = z.values[j];
-    }
-    return list;
-}
-
-HList_HString HList_HStringOf(size_t count, ...) {
-    va_list ap;
-    HList_HString list;
-    list.values = (HString*)(malloc(sizeof(HString) * (count + 1)));
-    list.length = count;
-    list.capacity = count + 1;
-    va_start(ap, count);
-    for(int j = 0;j < count;j ++) { list.values[j] = va_arg(ap, HString); }
-    return list;
-}
-
-HString h_str_HList_HString_HString(HList_HString list) {
-    HString z = HStringFrom("[");
-
-    for(int j = 0;j < list.length - 1;j ++) {
-        z = h_add_HString_HString(z, h_str_HString_HString(list.values[j]));
-        z = h_add_HString_HString(z, HStringFrom(" "));
-    }
-    z = h_add_HString_HString(z, h_str_HString_HString(list.values[list.length - 1]));
-    z = h_add_HString_HString(z, HStringFrom("]"));
-    return z;
-}
-
-HString h_print_HList_HString_HString(HList_HString list) {
-    return h_prints_HString_HString(h_str_HList_HString_HString(list));
-}
-
-int h_count_HList_HString_HStringREFbool_int(HList_HString list, bool(*z)(HString)) {
-    int count = 0;
-    for(int j = 0;j < list.length;j ++) {
-        if((*z)(list.values[j])) {
-            count++;
-        }
-    }
-    return count;
-}
-
-
-
-
-
-typedef struct HList_int {
+typedef struct AList_int {
     int* values;
     size_t length;
     size_t capacity;
-} HList_int;
+} AList_int;
 
-HList_int h_append_HList_int_int_HList_int(HList_int list, int elem) {
+AList_int a_append_AList_int_int_AList_int(AList_int list, int elem) {
     if(list.length + 1 > list.capacity) {
         list.capacity *= 2;
         list.values = (int*)realloc(list.values, sizeof(int) * list.capacity);
@@ -206,21 +125,21 @@ HList_int h_append_HList_int_int_HList_int(HList_int list, int elem) {
     return list;
 }
 
-HList_int h_pop_HList_int_int_HList_int(HList_int list, int elem) {
+AList_int a_pop_AList_int_int_AList_int(AList_int list, int elem) {
     list.length--;
     return list;
 }
 
-int h_length_HList_int_int(HList_int list) {
+int a_length_AList_int_int(AList_int list) {
     return list.length;
 }
 
-int h_index_HList_int_int_int(HList_int list, int index) {
+int a_index_AList_int_int_int(AList_int list, int index) {
     return list.values[index];
 }
 
-HList_int h_slice_HList_int_int_int_HList_int(HList_int z, int from, int to) {
-    HList_int list;
+AList_int a_slice_AList_int_int_int_AList_int(AList_int z, int from, int to) {
+    AList_int list;
     list.values = (int*)malloc(sizeof(int) * (to - from));
     list.length = to - from;
     list.capacity = to - from;
@@ -230,9 +149,9 @@ HList_int h_slice_HList_int_int_int_HList_int(HList_int z, int from, int to) {
     return list;
 }
 
-HList_int HList_intOf(size_t count, ...) {
+AList_int AList_intOf(size_t count, ...) {
     va_list ap;
-    HList_int list;
+    AList_int list;
     list.values = (int*)(malloc(sizeof(int) * (count + 1)));
     list.length = count;
     list.capacity = count + 1;
@@ -241,23 +160,104 @@ HList_int HList_intOf(size_t count, ...) {
     return list;
 }
 
-HString h_str_HList_int_HString(HList_int list) {
-    HString z = HStringFrom("[");
+AString a_str_AList_int_AString(AList_int list) {
+    AString z = AStringFrom("[");
 
     for(int j = 0;j < list.length - 1;j ++) {
-        z = h_add_HString_HString(z, h_str_int_HString(list.values[j]));
-        z = h_add_HString_HString(z, HStringFrom(" "));
+        z = a_add_AString_AString(z, a_str_int_AString(list.values[j]));
+        z = a_add_AString_AString(z, AStringFrom(" "));
     }
-    z = h_add_HString_HString(z, h_str_int_HString(list.values[list.length - 1]));
-    z = h_add_HString_HString(z, HStringFrom("]"));
+    z = a_add_AString_AString(z, a_str_int_AString(list.values[list.length - 1]));
+    z = a_add_AString_AString(z, AStringFrom("]"));
     return z;
 }
 
-HString h_print_HList_int_HString(HList_int list) {
-    return h_prints_HString_HString(h_str_HList_int_HString(list));
+AString a_print_AList_int_AString(AList_int list) {
+    return a_prints_AString_AString(a_str_AList_int_AString(list));
 }
 
-int h_count_HList_int_intREFbool_int(HList_int list, bool(*z)(int)) {
+int a_count_AList_int_intREFbool_int(AList_int list, bool(*z)(int)) {
+    int count = 0;
+    for(int j = 0;j < list.length;j ++) {
+        if((*z)(list.values[j])) {
+            count++;
+        }
+    }
+    return count;
+}
+
+
+
+
+
+typedef struct AList_AString {
+    AString* values;
+    size_t length;
+    size_t capacity;
+} AList_AString;
+
+AList_AString a_append_AList_AString_AString_AList_AString(AList_AString list, AString elem) {
+    if(list.length + 1 > list.capacity) {
+        list.capacity *= 2;
+        list.values = (AString*)realloc(list.values, sizeof(AString) * list.capacity);
+    }
+    list.values[list.length] = elem;
+    list.length++;
+    return list;
+}
+
+AList_AString a_pop_AList_AString_AString_AList_AString(AList_AString list, AString elem) {
+    list.length--;
+    return list;
+}
+
+int a_length_AList_AString_int(AList_AString list) {
+    return list.length;
+}
+
+AString a_index_AList_AString_int_AString(AList_AString list, int index) {
+    return list.values[index];
+}
+
+AList_AString a_slice_AList_AString_int_int_AList_AString(AList_AString z, int from, int to) {
+    AList_AString list;
+    list.values = (AString*)malloc(sizeof(AString) * (to - from));
+    list.length = to - from;
+    list.capacity = to - from;
+    for(int j = from;j < to;j ++) {
+        list.values[j - from] = z.values[j];
+    }
+    return list;
+}
+
+AList_AString AList_AStringOf(size_t count, ...) {
+    va_list ap;
+    AList_AString list;
+    list.values = (AString*)(malloc(sizeof(AString) * (count + 1)));
+    list.length = count;
+    list.capacity = count + 1;
+    va_start(ap, count);
+    for(int j = 0;j < count;j ++) { list.values[j] = va_arg(ap, AString); }
+    return list;
+}
+
+AString a_str_AList_AString_AString(AList_AString list) {
+    AString z = AStringFrom("[");
+
+    for(int j = 0;j < list.length - 1;j ++) {
+        z = a_add_AString_AString(z, a_str_AString_AString(list.values[j]));
+        z = a_add_AString_AString(z, AStringFrom(" "));
+    }
+    z = a_add_AString_AString(z, a_str_AString_AString(list.values[list.length - 1]));
+    z = a_add_AString_AString(z, AStringFrom("]"));
+    return z;
+}
+
+AString a_print_AList_AString_AString(AList_AString list) {
+    return a_prints_AString_AString(a_str_AList_AString_AString(list));
+}
+
+int a_count_AList_AString_AStringREFbool_int(AList_AString list, bool(*z)(AString)) {
     int count = 0;
     for(int j = 0;j < list.length;j ++) {
         if((*z)(list.values[j])) {
@@ -272,8 +272,8 @@ int h_count_HList_int_intREFbool_int(HList_int list, bool(*z)(int)) {
 
 
 
-HList_int h_range_int_int_HList_int(int from, int to) {
-    HList_int result;
+AList_int a_range_int_int_AList_int(int from, int to) {
+    AList_int result;
     result.length = to - from;
     result.capacity = result.length + 1;
     result.values = (int*)malloc(sizeof(int) * result.capacity);
@@ -281,8 +281,8 @@ HList_int h_range_int_int_HList_int(int from, int to) {
     return result;
 }
 
-HList_HString h_split_w_HString_HList_HString(HString from) {
-    HList_HString z = HList_HStringOf(0);
+AList_AString a_split_w_AString_AList_AString(AString from) {
+    AList_AString z = AList_AStringOf(0);
     char current[256];
     int k = -1;
     for(int j = 0;j < from.length; j++) {
@@ -293,25 +293,25 @@ HList_HString h_split_w_HString_HList_HString(HString from) {
         else {
             if (k > -1) {
                 current[k + 1] = '\0';
-                z = h_append_HList_HString_HString_HList_HString(z, HStringFrom(current));
+                z = a_append_AList_AString_AString_AList_AString(z, AStringFrom(current));
             }
             k = -1;
         }
     }
     if (k > -1) {
         current[k + 1] = '\0';
-            z = h_append_HList_HString_HString_HList_HString(z, HStringFrom(current));
+            z = a_append_AList_AString_AString_AList_AString(z, AStringFrom(current));
     }
 
     return z;
 }
 
 
-int h_add4_int_int(int h_value){
-    return (h_value + 4);
+int a_add4_int_int(int a_value){
+    return (a_value + 4);
 }
 
 int main(){
-    h_print_int_HString(h_add4_int_int(2));
+    a_print_int_AString(a_add4_int_int(2));
     return 0;
 }

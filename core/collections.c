@@ -1,5 +1,5 @@
-HList_int h_range_int_int_HList_int(int from, int to) {
-    HList_int result;
+AList_int a_range_int_int_AList_int(int from, int to) {
+    AList_int result;
     result.length = to - from;
     result.capacity = result.length + 1;
     result.values = (int*)malloc(sizeof(int) * result.capacity);
@@ -7,8 +7,8 @@ HList_int h_range_int_int_HList_int(int from, int to) {
     return result;
 }
 
-HList_HString h_split_w_HString_HList_HString(HString from) {
-    HList_HString z = HList_HStringOf(0);
+AList_AString a_split_w_AString_AList_AString(AString from) {
+    AList_AString z = AList_AStringOf(0);
     char current[256];
     int k = -1;
     for(int j = 0;j < from.length; j++) {
@@ -19,14 +19,14 @@ HList_HString h_split_w_HString_HList_HString(HString from) {
         else {
             if (k > -1) {
                 current[k + 1] = '\0';
-                z = h_append_HList_HString_HString_HList_HString(z, HStringFrom(current));
+                z = a_append_AList_AString_AString_AList_AString(z, AStringFrom(current));
             }
             k = -1;
         }
     }
     if (k > -1) {
         current[k + 1] = '\0';
-            z = h_append_HList_HString_HString_HList_HString(z, HStringFrom(current));
+            z = a_append_AList_AString_AString_AList_AString(z, AStringFrom(current));
     }
 
     return z;

@@ -1,6 +1,6 @@
 from nose.tools import assert_equal, assert_raises, raises
-from hermetic.ast_rewriter import ASTRewriter
-from hermetic import errors
+from airtight.ast_rewriter import ASTRewriter
+from airtight import errors
 
 class TestASTRewriter:
     @raises(errors.NotSupportedError)

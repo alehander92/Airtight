@@ -1,11 +1,11 @@
-typedef struct HString {
+typedef struct AString {
     char* chars;
     size_t length;
     size_t capacity;
-} HString;
+} AString;
 
-HString HStringFrom(char* s) {
-    HString string;
+AString AStringFrom(char* s) {
+    AString string;
     string.capacity = strlen(s) + 1;
     string.chars = (char*)malloc(sizeof(char) * string.capacity);
     string.length = string.capacity - 1;
@@ -14,7 +14,7 @@ HString HStringFrom(char* s) {
     return string;
 }
 
-HString h_add_HString_HString(HString z, HString a) {
+AString a_add_AString_AString(AString z, AString a) {
     if (a.length + z.length + 1 >= z.capacity) {
         z.capacity *= 2;
         z.chars = (char*)(realloc(z.chars, sizeof(char) * z.capacity));
@@ -25,42 +25,42 @@ HString h_add_HString_HString(HString z, HString a) {
 
     return z;
 }
-int h_length_HString_int(HString string) {
+int a_length_AString_int(AString string) {
     return string.length;
 }
 
-HString h_prints_HString_HString(HString string) {
+AString a_prints_AString_AString(AString string) {
     printf("%s\n", string.chars);
     return string;
 }
 
-HString h_str_int_HString(int value) {
+AString a_str_int_AString(int value) {
     char buffer[22];
     snprintf(buffer, 22, "%d", value);
-    HString z = HStringFrom(buffer);
+    AString z = AStringFrom(buffer);
     return z;
 }
 
-HString h_str_HString_HString(HString string) {
+AString a_str_AString_AString(AString string) {
     return string;
 }
 
-HString h_print_int_HString(int value) {
-    return h_prints_HString_HString(h_str_int_HString(value));
+AString a_print_int_AString(int value) {
+    return a_prints_AString_AString(a_str_int_AString(value));
 }
 
-HString h_print_HString_HString(HString string) {
-    return h_prints_HString_HString(string);
+AString a_print_AString_AString(AString string) {
+    return a_prints_AString_AString(string);
 }
 
-HString h_read_HString_HString(HString z) {
+AString a_read_AString_AString(AString z) {
     char buffer[256];
     int count = scanf("%s\n", buffer);
-    HString z2 = HStringFrom(buffer);
+    AString z2 = AStringFrom(buffer);
     return z2;
 }
 
-bool h_ends_with_HString_HString_bool(HString z, HString with) {
+bool a_ends_wita_AString_AString_bool(AString z, AString with) {
     if (z.length < with.length) { return false; }
     for(int j = 0; j < with.length; j++) {
         if(z.chars[z.length - with.length + j] != with.chars[j]) {

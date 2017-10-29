@@ -3,11 +3,11 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import ast
-from hermetic import hindley_milner_ast
-from hermetic import converter
-from hermetic import top_env
-from hermetic import ll_ast
-from hermetic import c_generator
+from airtight import hindley_milner_ast
+from airtight import converter
+from airtight import top_env
+from airtight import ll_ast
+from airtight import c_generator
 
 def main(filename, args):
     show_hm_ast         = '--hm-ast' in args
@@ -39,8 +39,8 @@ def main(filename, args):
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        print('bin/hermetic <filename> (generates <filename>.c)')
-        print('bin/hermetic <filename> --to-binary (generates <filename>.c and compiles it with c99)')
+        print('bin/airtight <filename> (generates <filename>.c)')
+        print('bin/airtight <filename> --to-binary (generates <filename>.c and compiles it with c99)')
         print('display options: --hm-ast --typed-hm-ast --typed-c-ast')
     else:
         args = sys.argv[2:]

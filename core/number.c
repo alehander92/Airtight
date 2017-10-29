@@ -1,4 +1,4 @@
-int to_int_HString_int(HString value) {
+int to_int_AString_int(AString value) {
 
     int i = 0;
     for(int j = 0; j <= value.length;j++) {
@@ -19,10 +19,10 @@ float to_float_float_float(float value) {
     return value;
 }
 
-bool h_h__lte___int_int_bool(int a, int b) {
+bool a_a__lte___int_int_bool(int a, int b) {
     return a <= b;
 }
 
-bool h_h__lte___float_float_bool(float a, float b) {
+bool a_a__lte___float_float_bool(float a, float b) {
     return a <= b;
 }

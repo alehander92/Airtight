@@ -45,7 +45,7 @@ def sum(n: Integer) -> Integer:
 print(sum(2000))
 ```
 
-owever we just reuse Python3's syntax. We try to preserve the spirit and semantics
+however we just reuse Python3's syntax. We try to preserve the spirit and semantics
 in many cases, but look at it like a different language.
 
 you can install it and use it like that
